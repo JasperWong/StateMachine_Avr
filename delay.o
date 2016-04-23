@@ -1,0 +1,50 @@
+XL
+H 1 areas 4 global symbols
+M delay.c
+S push_xgsetF000 Ref0000
+S pop_xgsetF000 Ref0000
+A text size 38 flags 0
+dbfile delay.c
+dbfile F:\avr\状态机大作业\delay.c
+dbfunc e delay_us 0 fV
+dbsym r n 10 i
+dbline FFFFFFFF 0
+dbline 6 0
+dbline 7 0
+dbline 8 6
+dbline 9 6
+dbline B 8
+dbline B 8
+dbline FFFFFFFE 14
+dbline 0 14
+dbfunc e delay_ms 16 fV
+dbsym r a 14 i
+dbsym r b 16 c
+dbsym r i 10 i
+dbline FFFFFFFF 1A
+dbline 10 1A
+dbline 13 1A
+dbline 14 20
+dbline 15 20
+dbline 16 24
+dbline 17 24
+dbline 18 24
+dbline 15 24
+dbline 15 26
+dbline 19 2A
+dbline 13 2A
+dbline 13 2E
+dbline FFFFFFFE 34
+dbline 0 34
+S _delay_ms Def0016
+S _delay_us Def0000
+T 00 00 00 30 01 07 09 F4 06 C0 C8 01 01 97 8C 01
+R 00 00 00 00
+T 0E 00 00 30 01 07 D1 F7 08 95
+R 00 00 00 00
+T 16 00 0E 94 00 00 41 E0 50 E0 07 C0 61 E0 01 C0
+R 00 00 00 00 12 04 00 00
+T 24 00 63 95 66 23 E9 F7 4F 5F 5F 4F 40 17 51 07
+R 00 00 00 00
+T 32 00 B0 F3 0C 94 00 00
+R 00 00 00 00 12 06 01 00

@@ -1,0 +1,93 @@
+                        .module _16SPI.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile 16SPI.c
+ 0000                   .dbfile F:\avr\状态机大作业\16SPI.c
+ 0000                   .dbfunc e SPI_Init _SPI_Init fV
+                        .even
+ 0000           _SPI_Init::
+ 0000                   .dbline -1
+ 0000                   .dbline 13
+ 0000           ; #include "16SPI.h"
+ 0000           ; 
+ 0000           ; 
+ 0000           ; /* 使能SPI
+ 0000           ;  * 主机模式
+ 0000           ;  * MSB先发
+ 0000           ;  * 无倍速
+ 0000           ;  * 失能中断
+ 0000           ;  * 4分频
+ 0000           ;  * SPI模式0
+ 0000           ;  */
+ 0000           ; void SPI_Init (void)
+ 0000           ; {
+ 0000                   .dbline 14
+ 0000           ;       SET_DD_MOSI_M;
+ 0000 BD9A              sbi 0x17,5
+ 0002                   .dbline 15
+ 0002           ;       SET_DD_MISO_M;
+ 0002 BC98              cbi 0x17,4
+ 0004                   .dbline 16
+ 0004           ;       SET_DD_SCK_M;
+ 0004 BF9A              sbi 0x17,7
+ 0006                   .dbline 17
+ 0006           ;       SET_DD_SS_M;
+ 0006 BC9A              sbi 0x17,4
+ 0008                   .dbline 19
+ 0008           ;       
+ 0008           ;       SPCR = 0x50;
+ 0008 80E5              ldi R24,80
+ 000A 8DB9              out 0xd,R24
+ 000C                   .dbline 20
+ 000C           ;       SPSR = 0x00;
+ 000C 2224              clr R2
+ 000E 2EB8              out 0xe,R2
+ 0010                   .dbline -2
+ 0010           L1:
+ 0010                   .dbline 0 ; func end
+ 0010 0895              ret
+ 0012                   .dbend
+ 0012                   .dbfunc e Send_Byte _Send_Byte fV
+ 0012           ;              i -> R10
+ 0012           ;           data -> R16
+                        .even
+ 0012           _Send_Byte::
+ 0012 AA92              st -y,R10
+ 0014                   .dbline -1
+ 0014                   .dbline 24
+ 0014           ; }
+ 0014           ; 
+ 0014           ; void Send_Byte(uchar data)
+ 0014           ; {
+ 0014           L3:
+ 0014                   .dbline 26
+ 0014           ;       uchar i;
+ 0014           ;       while((SPSR&(1<<WCOL)));
+ 0014           L4:
+ 0014                   .dbline 26
+ 0014 7699              sbic 0xe,6
+ 0016 FECF              rjmp L3
+ 0018           X0:
+ 0018                   .dbline 27
+ 0018           ;       SPDR = data;
+ 0018 0FB9              out 0xf,R16
+ 001A           L6:
+ 001A                   .dbline 28
+ 001A           ;       while (!(SPSR&(1<<SPIF)));
+ 001A           L7:
+ 001A                   .dbline 28
+ 001A 779B              sbis 0xe,7
+ 001C FECF              rjmp L6
+ 001E           X1:
+ 001E                   .dbline 29
+ 001E           ;       i = SPDR;
+ 001E AFB0              in R10,0xf
+ 0020                   .dbline -2
+ 0020           L2:
+ 0020                   .dbline 0 ; func end
+ 0020 A990              ld R10,y+
+ 0022 0895              ret
+ 0024                   .dbsym r i 10 c
+ 0024                   .dbsym r data 16 c
+ 0024                   .dbend
+ 0024           ; }
+ 0024           ; 

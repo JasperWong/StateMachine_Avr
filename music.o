@@ -1,0 +1,17 @@
+XL
+H 1 areas 1 global symbols
+M music.c
+A text size A flags 0
+dbfile music.c
+dbfile F:\avr\状态机大作业\music.c
+dbfunc e Bell_Init 0 fV
+dbline FFFFFFFF 0
+dbline 10 0
+dbline 11 0
+dbline 12 2
+dbline 13 4
+dbline FFFFFFFE 8
+dbline 0 8
+S _Bell_Init Def0000
+T 00 00 8F 9A 97 98 81 E0 8E BD 08 95
+R 00 00 00 00

@@ -1,0 +1,38 @@
+XL
+H 1 areas 1 global symbols
+M IO_Init.c
+A text size 32 flags 0
+dbfile IO_Init.c
+dbfile F:\avr\状态机大作业\IO_Init.c
+dbfunc e IO_Init 0 fV
+dbline FFFFFFFF 0
+dbline 5 0
+dbline 7 0
+dbline 8 4
+dbline A 6
+dbline B A
+dbline D C
+dbline E 12
+dbline 10 18
+dbline 11 1A
+dbline 12 1C
+dbline 13 1E
+dbline 15 20
+dbline 16 22
+dbline 17 24
+dbline 18 26
+dbline 1A 28
+dbline 1B 2A
+dbline 1D 2C
+dbline 1E 2E
+dbline FFFFFFFE 30
+dbline 0 30
+S _IO_Init Def0000
+T 00 00 8F EF 84 BB 85 BB 22 24 21 BA 82 BB 87 B3
+R 00 00 00 00
+T 0E 00 8F 6F 87 BB 88 B3 80 7F 88 BB 8A 9A 92 98
+R 00 00 00 00
+T 1C 00 8B 9A 93 98 8C 9A 94 98 8D 9A 95 98 8E 9A
+R 00 00 00 00
+T 2A 00 96 98 8F 9A 97 98 08 95
+R 00 00 00 00

@@ -1,0 +1,197 @@
+                        .module eeprom.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile eeprom.c
+ 0000                   .dbfile F:\avr\×´Ì¬»ú´ó×÷Òµ\eeprom.c
+ 0000                   .dbfunc e eeprom_write _eeprom_write fV
+ 0000           ;           sreg -> R10,R11
+ 0000           ;           data -> R18
+ 0000           ;            add -> R16
+                        .even
+ 0000           _eeprom_write::
+ 0000 AA92              st -y,R10
+ 0002 BA92              st -y,R11
+ 0004                   .dbline -1
+ 0004                   .dbline 5
+ 0004           ; #include<iom16v.h>
+ 0004           ; #include"eeprom.h"
+ 0004           ; 
+ 0004           ; void eeprom_write(uchar add,uchar data)
+ 0004           ; {     
+ 0004                   .dbline 7
+ 0004           ;               uint sreg;                                                                      //ÔÝÊ±´¢´æ×´Ì¬
+ 0004           ;               sreg=SREG;
+ 0004 AFB6              in R10,0x3f
+ 0006 BB24              clr R11
+ 0008                   .dbline 8
+ 0008           ;               SREG = ~0x80;
+ 0008 8FE7              ldi R24,127
+ 000A 8FBF              out 0x3f,R24
+ 000C           L2:
+ 000C                   .dbline 9
+ 000C           ;               while(EECR&(1<<EEWE));
+ 000C           L3:
+ 000C                   .dbline 9
+ 000C E199              sbic 0x1c,1
+ 000E FECF              rjmp L2
+ 0010           X0:
+ 0010                   .dbline 10
+ 0010           ;               EEARH=0x00;
+ 0010 2224              clr R2
+ 0012 2FBA              out 0x1f,R2
+ 0014                   .dbline 11
+ 0014           ;               EEARL=add;
+ 0014 0EBB              out 0x1e,R16
+ 0016                   .dbline 12
+ 0016           ;               EEDR=data;
+ 0016 2DBB              out 0x1d,R18
+ 0018                   .dbline 13
+ 0018           ;               EECR|=(1<<EEMWE);
+ 0018 E29A              sbi 0x1c,2
+ 001A                   .dbline 14
+ 001A           ;               EECR&=~(1<<EEWE);
+ 001A E198              cbi 0x1c,1
+ 001C                   .dbline 15
+ 001C           ;               EECR|=(1<<EEWE);
+ 001C E19A              sbi 0x1c,1
+ 001E                   .dbline 16
+ 001E           ;               SREG=sreg;
+ 001E AFBE              out 0x3f,R10
+ 0020                   .dbline -2
+ 0020           L1:
+ 0020                   .dbline 0 ; func end
+ 0020 B990              ld R11,y+
+ 0022 A990              ld R10,y+
+ 0024 0895              ret
+ 0026                   .dbsym r sreg 10 i
+ 0026                   .dbsym r data 18 c
+ 0026                   .dbsym r add 16 c
+ 0026                   .dbend
+ 0026                   .dbfunc e eeprom_read _eeprom_read fc
+ 0026           ;           sreg -> R10,R11
+ 0026           ;            add -> R16
+                        .even
+ 0026           _eeprom_read::
+ 0026 AA92              st -y,R10
+ 0028 BA92              st -y,R11
+ 002A                   .dbline -1
+ 002A                   .dbline 20
+ 002A           ; }
+ 002A           ; 
+ 002A           ; uchar eeprom_read(uchar add)
+ 002A           ; {             
+ 002A                   .dbline 23
+ 002A           ;               
+ 002A           ;               uint sreg;                                                                      //ÔÝÊ±´¢´æ×´Ì¬
+ 002A           ;               sreg=SREG;
+ 002A AFB6              in R10,0x3f
+ 002C BB24              clr R11
+ 002E                   .dbline 24
+ 002E           ;               SREG = ~0x80;
+ 002E 8FE7              ldi R24,127
+ 0030 8FBF              out 0x3f,R24
+ 0032           L6:
+ 0032                   .dbline 25
+ 0032           ;               while(EECR&(1<<EEWE));
+ 0032           L7:
+ 0032                   .dbline 25
+ 0032 E199              sbic 0x1c,1
+ 0034 FECF              rjmp L6
+ 0036           X1:
+ 0036                   .dbline 26
+ 0036           ;               EEARH=0X00;
+ 0036 2224              clr R2
+ 0038 2FBA              out 0x1f,R2
+ 003A                   .dbline 27
+ 003A           ;               EEARL=add;
+ 003A 0EBB              out 0x1e,R16
+ 003C                   .dbline 28
+ 003C           ;               EECR|=(1<<EERE);
+ 003C E09A              sbi 0x1c,0
+ 003E                   .dbline 29
+ 003E           ;               SREG=sreg;
+ 003E AFBE              out 0x3f,R10
+ 0040                   .dbline 30
+ 0040           ;               return EEDR;
+ 0040 0DB3              in R16,0x1d
+ 0042                   .dbline -2
+ 0042           L5:
+ 0042                   .dbline 0 ; func end
+ 0042 B990              ld R11,y+
+ 0044 A990              ld R10,y+
+ 0046 0895              ret
+ 0048                   .dbsym r sreg 10 i
+ 0048                   .dbsym r add 16 c
+ 0048                   .dbend
+ 0048                   .dbfunc e eeprom_write_string _eeprom_write_string fV
+ 0048           ;              i -> R10
+ 0048           ;           temp -> R12,R13
+ 0048           ;            add -> R14
+                        .even
+ 0048           _eeprom_write_string::
+ 0048 0E940000          xcall push_xgset00FC
+ 004C 6901              movw R12,R18
+ 004E E02E              mov R14,R16
+ 0050                   .dbline -1
+ 0050                   .dbline 34
+ 0050           ; }
+ 0050           ; 
+ 0050           ; void eeprom_write_string(uchar add,uchar temp[])
+ 0050           ; {
+ 0050                   .dbline 35
+ 0050           ;       uchar i=0;
+ 0050 AA24              clr R10
+ 0052 09C0              xjmp L11
+ 0054           L10:
+ 0054                   .dbline 37
+ 0054           ;       while(temp[i]!='\0')
+ 0054           ;       {
+ 0054                   .dbline 38
+ 0054           ;               eeprom_write(add,temp[i]);
+ 0054 EA2D              mov R30,R10
+ 0056 FF27              clr R31
+ 0058 EC0D              add R30,R12
+ 005A FD1D              adc R31,R13
+ 005C 2081              ldd R18,z+0
+ 005E 0E2D              mov R16,R14
+ 0060 CFDF              xcall _eeprom_write
+ 0062                   .dbline 39
+ 0062           ;               i++;
+ 0062 A394              inc R10
+ 0064                   .dbline 40
+ 0064           ;               add++;
+ 0064 E394              inc R14
+ 0066                   .dbline 41
+ 0066           ;       }
+ 0066           L11:
+ 0066                   .dbline 36
+ 0066 EA2D              mov R30,R10
+ 0068 FF27              clr R31
+ 006A EC0D              add R30,R12
+ 006C FD1D              adc R31,R13
+ 006E 2080              ldd R2,z+0
+ 0070 2220              tst R2
+ 0072 81F7              brne L10
+ 0074           X2:
+ 0074                   .dbline -2
+ 0074           L9:
+ 0074                   .dbline 0 ; func end
+ 0074 0C940000          xjmp pop_xgset00FC
+ 0078                   .dbsym r i 10 c
+ 0078                   .dbsym r temp 12 pc
+ 0078                   .dbsym r add 14 c
+ 0078                   .dbend
+ 0078           ; }
+ 0078           ; 
+ 0078           ; 
+ 0078           ; /*void write0(uchar add,uchar num,uchar *p_data)
+ 0078           ; {
+ 0078           ;       SREG=0x00;
+ 0078           ;               while(num--)
+ 0078           ;               while(EECR&(1<<EEPE));
+ 0078           ;               EEARH=0x00;
+ 0078           ;               EEARL=add;
+ 0078           ;               EEDR=data;
+ 0078           ;               EECR|=(1<<EEMPE);
+ 0078           ;               EECR&=~(1<<EEPE);
+ 0078           ;               EECR|=(1<<EEPE);
+ 0078           ;               */

@@ -1,0 +1,40 @@
+#include<iom16v.h>
+#include<macros.h>
+
+
+#define uchar unsigned char 
+#define uint  unsigned int
+
+//计时值=65536-系统时钟/分频系数/音调频率/2   
+//      音符 计时值  频率Hz 
+#define LL6	 62314   //220	
+#define LL7  62562   //247   	
+#define L1	 62578   //262    
+#define L2	 63086   //294	
+#define L3	 63071   //330   	
+#define L4	 63154   //349	
+#define L5	 63311   //392	
+#define L6	 64350   //440	
+#define L7	 63574   //494	
+#define N1	 63629   //523	
+#define N2	 63735   //587	
+#define N3	 63828   //659	
+#define N4	 63870   //698	
+#define N5	 63949   //784	
+#define N6	 64018   //880	
+#define N7	 64080   //988	
+#define H1	 64109   //1047	 
+#define H2	 64161   //1175	
+#define H3	 64307   //1319
+	
+#define H4	 64229   //1397	
+#define H5	 64368   //1568	
+#define H6	 64302   //1760	
+#define H7	 64333   //1976	
+#define HH1	 64348   //2093
+#define O    0       //休止符
+
+void Bell_Init();
+void Bell();
+void Music(unsigned int *pMusic);
+

@@ -1,0 +1,3915 @@
+                        .module main.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile main.c
+                        .area data(ram, con, rel)
+ 0000                   .dbfile main.c
+ 0000           _AdcConCom::
+ 0000                   .blkb 1
+                        .area idata
+ 0000 00                .byte 0
+                        .area data(ram, con, rel)
+ 0001                   .dbfile main.c
+ 0001                   .dbfile F:\avr\状态机大作业\main.c
+ 0001                   .dbsym e AdcConCom _AdcConCom c
+ 0001           _select::
+ 0001                   .blkb 1
+                        .area idata
+ 0001 00                .byte 0
+                        .area data(ram, con, rel)
+ 0002                   .dbfile F:\avr\状态机大作业\main.c
+ 0002                   .dbsym e select _select c
+ 0002           _IsPress::
+ 0002                   .blkb 1
+                        .area idata
+ 0002 00                .byte 0
+                        .area data(ram, con, rel)
+ 0003                   .dbfile F:\avr\状态机大作业\main.c
+ 0003                   .dbsym e IsPress _IsPress c
+ 0003           _function::
+ 0003                   .blkb 1
+                        .area idata
+ 0003 00                .byte 0
+                        .area data(ram, con, rel)
+ 0004                   .dbfile F:\avr\状态机大作业\main.c
+ 0004                   .dbsym e function _function c
+ 0004           _IsReset::
+ 0004                   .blkb 1
+                        .area idata
+ 0004 00                .byte 0
+                        .area data(ram, con, rel)
+ 0005                   .dbfile F:\avr\状态机大作业\main.c
+ 0005                   .dbsym e IsReset _IsReset c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile F:\avr\状态机大作业\main.c
+ 0000                   .dbfunc e main _main fV
+ 0000           ;              p -> R20,R21
+                        .even
+ 0000           _main::
+ 0000 2297              sbiw R28,2
+ 0002                   .dbline -1
+ 0002                   .dbline 26
+ 0002           ; #include<iom16v.h>
+ 0002           ; #include<macros.h>
+ 0002           ; #include"ad_key.h"
+ 0002           ; #include"lcd1602.h"
+ 0002           ; #include"IO_Init.h"
+ 0002           ; #include"usart.h"
+ 0002           ; #include"reset.h"
+ 0002           ; #include"LED.h"
+ 0002           ; #include"music.h"
+ 0002           ; #include"eeprom.h"
+ 0002           ; #include"Password.h"
+ 0002           ; 
+ 0002           ; uint  AdcData;                        //存放ADC转换的结果
+ 0002           ; uchar AdcConCom = 0;                            //ADC转换完成标志
+ 0002           ; uchar select=0;                                                 //键盘选择标志
+ 0002           ;                                       
+ 0002           ; uint  beat;                                                     //音乐调子
+ 0002           ; uchar IsPress=0;                                        //是否按下标志位
+ 0002           ; uchar function=0;                                       //功能选择标志位
+ 0002           ; uchar Right_password[4];                        //设定的密码
+ 0002           ; uchar Try_password[4];                                  //尝试匹配的密码
+ 0002           ; uint  i;
+ 0002           ; uchar IsReset=0;
+ 0002           ;       
+ 0002           ; void main()
+ 0002           ; {     
+ 0002                   .dbline 28
+ 0002           ;       uchar *p;
+ 0002           ;       p="by Jasper";  
+ 0002 40E0              ldi R20,<L2
+ 0004 50E0              ldi R21,>L2
+ 0006                   .dbline 29
+ 0006           ;       Init();
+ 0006 77D0              xcall _Init
+ 0008                   .dbline 30
+ 0008           ;       IsReset=0;
+ 0008 2224              clr R2
+ 000A 20920400          sts _IsReset,R2
+ 000E                   .dbline 31
+ 000E           ;       IsReset=eeprom_read(100);
+ 000E 04E6              ldi R16,100
+ 0010 0E940000          xcall _eeprom_read
+ 0014 00930400          sts _IsReset,R16
+ 0018                   .dbline 33
+ 0018           ;       
+ 0018           ;       if(!IsReset)                                                                            //首次进入输入密码和显示欢迎界面
+ 0018 0023              tst R16
+ 001A 69F5              brne L3
+ 001C           X0:
+ 001C                   .dbline 34
+ 001C           ;       {
+ 001C                   .dbline 35
+ 001C           ;               Confirm();
+ 001C E2D1              xcall _Confirm
+ 001E                   .dbline 36
+ 001E           ;               LCD_clear();
+ 001E 0E940000          xcall _LCD_clear
+ 0022                   .dbline 37
+ 0022           ;               delay_ms(200);
+ 0022 08EC              ldi R16,200
+ 0024 10E0              ldi R17,0
+ 0026 0E940000          xcall _delay_ms
+ 002A                   .dbline 38
+ 002A           ;               LCD_write_str(5,0,"welcome");
+ 002A 80E0              ldi R24,<L5
+ 002C 90E0              ldi R25,>L5
+ 002E 9983              std y+1,R25
+ 0030 8883              std y+0,R24
+ 0032 2227              clr R18
+ 0034 05E0              ldi R16,5
+ 0036 0E940000          xcall _LCD_write_str
+ 003A 19C0              xjmp L7
+ 003C           L6:
+ 003C                   .dbline 41
+ 003C           ;       
+ 003C           ;               while(*p)                                                                       
+ 003C           ;               {
+ 003C                   .dbline 42
+ 003C           ;                       LCD_write_char(i,1,*p);
+ 003C FA01              movw R30,R20
+ 003E 2080              ldd R2,z+0
+ 0040 2882              std y+0,R2
+ 0042 21E0              ldi R18,1
+ 0044 00910000          lds R16,_i
+ 0048 10910100          lds R17,_i+1
+ 004C 0E940000          xcall _LCD_write_char
+ 0050                   .dbline 43
+ 0050           ;                       p++;
+ 0050 4F5F              subi R20,255  ; offset = 1
+ 0052 5F4F              sbci R21,255
+ 0054                   .dbline 44
+ 0054           ;                       i++;
+ 0054 80910000          lds R24,_i
+ 0058 90910100          lds R25,_i+1
+ 005C 0196              adiw R24,1
+ 005E 90930100          sts _i+1,R25
+ 0062 80930000          sts _i,R24
+ 0066                   .dbline 45
+ 0066           ;                       delay_ms(100);
+ 0066 04E6              ldi R16,100
+ 0068 10E0              ldi R17,0
+ 006A 0E940000          xcall _delay_ms
+ 006E                   .dbline 46
+ 006E           ;               }
+ 006E           L7:
+ 006E                   .dbline 40
+ 006E FA01              movw R30,R20
+ 0070 2080              ldd R2,z+0
+ 0072 2220              tst R2
+ 0074 19F7              brne L6
+ 0076           X1:
+ 0076                   .dbline 47
+ 0076           ;       }
+ 0076           L3:
+ 0076                   .dbline 50
+ 0076           ;       
+ 0076           ;                                                                                                       
+ 0076           ;       LCD_clear();                                                                            //正式进入系统
+ 0076 0E940000          xcall _LCD_clear
+ 007A                   .dbline 51
+ 007A           ;       LCD_write_str(0,0,"1bell2led3motor");                           
+ 007A 80E0              ldi R24,<L9
+ 007C 90E0              ldi R25,>L9
+ 007E 9983              std y+1,R25
+ 0080 8883              std y+0,R24
+ 0082 2227              clr R18
+ 0084 0027              clr R16
+ 0086 0E940000          xcall _LCD_write_str
+ 008A                   .dbline 52
+ 008A           ;       LCD_write_str(0,1,"4fix_password");
+ 008A 80E0              ldi R24,<L10
+ 008C 90E0              ldi R25,>L10
+ 008E 9983              std y+1,R25
+ 0090 8883              std y+0,R24
+ 0092 21E0              ldi R18,1
+ 0094 0027              clr R16
+ 0096 0E940000          xcall _LCD_write_str
+ 009A 2AC0              xjmp L12
+ 009C           L11:
+ 009C                   .dbline 55
+ 009C           ;       
+ 009C           ;       while(1)
+ 009C           ;       {
+ 009C                   .dbline 56
+ 009C           ;               eeprom_write(100,0);
+ 009C 2227              clr R18
+ 009E 04E6              ldi R16,100
+ 00A0 0E940000          xcall _eeprom_write
+ 00A4                   .dbline 57
+ 00A4           ;               if(select=='1')                                                                 //蜂鸣器模式
+ 00A4 80910100          lds R24,_select
+ 00A8 8133              cpi R24,49
+ 00AA 99F4              brne L14
+ 00AC           X2:
+ 00AC                   .dbline 58
+ 00AC           ;               {
+ 00AC                   .dbline 59
+ 00AC           ;                       LCD_clear();
+ 00AC 0E940000          xcall _LCD_clear
+ 00B0                   .dbline 60
+ 00B0           ;                       LCD_write_str(0,0,"buzz..send * or");
+ 00B0 80E0              ldi R24,<L16
+ 00B2 90E0              ldi R25,>L16
+ 00B4 9983              std y+1,R25
+ 00B6 8883              std y+0,R24
+ 00B8 2227              clr R18
+ 00BA 0027              clr R16
+ 00BC 0E940000          xcall _LCD_write_str
+ 00C0                   .dbline 61
+ 00C0           ;                       LCD_write_str(0,1,"shutdown to exit");
+ 00C0 80E0              ldi R24,<L17
+ 00C2 90E0              ldi R25,>L17
+ 00C4 9983              std y+1,R25
+ 00C6 8883              std y+0,R24
+ 00C8 21E0              ldi R18,1
+ 00CA 0027              clr R16
+ 00CC 0E940000          xcall _LCD_write_str
+ 00D0                   .dbline 62
+ 00D0           ;                       Bell();
+ 00D0 8ED0              xcall _Bell
+ 00D2                   .dbline 63
+ 00D2           ;               }
+ 00D2           L14:
+ 00D2                   .dbline 65
+ 00D2           ;               
+ 00D2           ;               if(select=='2')  LED();                                                 //led模式
+ 00D2 80910100          lds R24,_select
+ 00D6 8233              cpi R24,50
+ 00D8 09F4              brne L18
+ 00DA           X3:
+ 00DA                   .dbline 65
+ 00DA DCD0              xcall _LED
+ 00DC           L18:
+ 00DC                   .dbline 67
+ 00DC           ;               
+ 00DC           ;               if(select=='3')  Motor();                                               //电机模式
+ 00DC 80910100          lds R24,_select
+ 00E0 8333              cpi R24,51
+ 00E2 09F4              brne L20
+ 00E4           X4:
+ 00E4                   .dbline 67
+ 00E4 22D1              xcall _Motor
+ 00E6           L20:
+ 00E6                   .dbline 69
+ 00E6           ;               
+ 00E6           ;               if(select=='4')  Write_password();                              //修改密码模式
+ 00E6 80910100          lds R24,_select
+ 00EA 8433              cpi R24,52
+ 00EC 09F4              brne L22
+ 00EE           X5:
+ 00EE                   .dbline 69
+ 00EE D1D1              xcall _Write_password
+ 00F0           L22:
+ 00F0                   .dbline 71
+ 00F0           ;               
+ 00F0           ;       }
+ 00F0           L12:
+ 00F0                   .dbline 54
+ 00F0 D5CF              xjmp L11
+ 00F2           X6:
+ 00F2                   .dbline -2
+ 00F2           L1:
+ 00F2                   .dbline 0 ; func end
+ 00F2 2296              adiw R28,2
+ 00F4 0895              ret
+ 00F6                   .dbsym r p 20 pc
+ 00F6                   .dbend
+ 00F6                   .dbfunc e Init _Init fV
+                        .even
+ 00F6           _Init::
+ 00F6                   .dbline -1
+ 00F6                   .dbline 77
+ 00F6           ;               
+ 00F6           ; }
+ 00F6           ; 
+ 00F6           ; /*总初始化*/
+ 00F6           ; void Init()                                                                                                                                                   
+ 00F6           ; {
+ 00F6                   .dbline 78
+ 00F6           ;       CLI(); 
+ 00F6 F894              cli
+ 00F8                   .dbline 79
+ 00F8           ;       IO_Init();
+ 00F8 0E940000          xcall _IO_Init
+ 00FC                   .dbline 80
+ 00FC           ;       ADC_Init();
+ 00FC 0E940000          xcall _ADC_Init
+ 0100                   .dbline 81
+ 0100           ;       Usart_init(); 
+ 0100 0E940000          xcall _Usart_init
+ 0104                   .dbline 82
+ 0104           ;       LCD_Init();
+ 0104 0E940000          xcall _LCD_Init
+ 0108                   .dbline 83
+ 0108           ;       Driver_595_Init();
+ 0108 0E940000          xcall _Driver_595_Init
+ 010C                   .dbline 84
+ 010C           ;       SPI_Init ();
+ 010C 0E940000          xcall _SPI_Init
+ 0110                   .dbline 85
+ 0110           ;       T2_Init();
+ 0110 0E940000          xcall _T2_Init
+ 0114                   .dbline 86
+ 0114           ;       SEI();  
+ 0114 7894              sei
+ 0116                   .dbline -2
+ 0116           L24:
+ 0116                   .dbline 0 ; func end
+ 0116 0895              ret
+ 0118                   .dbend
+                        .area vector(rom, abs)
+                        .org 44
+ 002C 0C948C00          jmp _UartRecvData
+                        .area text(rom, con, rel)
+ 0118                   .dbfile F:\avr\状态机大作业\main.c
+ 0118                   .dbfunc e UartRecvData _UartRecvData fV
+ 0118           ;           temp -> R20
+                        .even
+ 0118           _UartRecvData::
+ 0118 0A92              st -y,R0
+ 011A 1A92              st -y,R1
+ 011C 2A92              st -y,R2
+ 011E 3A92              st -y,R3
+ 0120 4A92              st -y,R4
+ 0122 5A92              st -y,R5
+ 0124 6A92              st -y,R6
+ 0126 7A92              st -y,R7
+ 0128 8A92              st -y,R8
+ 012A 9A92              st -y,R9
+ 012C 0A93              st -y,R16
+ 012E 1A93              st -y,R17
+ 0130 2A93              st -y,R18
+ 0132 3A93              st -y,R19
+ 0134 8A93              st -y,R24
+ 0136 9A93              st -y,R25
+ 0138 AA93              st -y,R26
+ 013A BA93              st -y,R27
+ 013C EA93              st -y,R30
+ 013E FA93              st -y,R31
+ 0140 0FB6              IN R0,63
+ 0142 0A92              st -y,R0
+ 0144 4A93              st -y,R20
+ 0146                   .dbline -1
+ 0146                   .dbline 94
+ 0146           ; }
+ 0146           ; /*总初始化*/
+ 0146           ; 
+ 0146           ; 
+ 0146           ; /*串口*/
+ 0146           ; #pragma interrupt_handler UartRecvData:12                                                                                     //串口
+ 0146           ; void UartRecvData(void)                                                                                                                                               
+ 0146           ; {
+ 0146                   .dbline 96
+ 0146           ;       uchar temp;
+ 0146           ;       temp = UDR;
+ 0146 4CB1              in R20,0xc
+ 0148                   .dbline 97
+ 0148           ;       if(temp=='s')   
+ 0148 4337              cpi R20,115
+ 014A 81F4              brne L26
+ 014C           X7:
+ 014C                   .dbline 98
+ 014C           ;       {       
+ 014C                   .dbline 99
+ 014C           ;               eeprom_write(100,1);
+ 014C 21E0              ldi R18,1
+ 014E 04E6              ldi R16,100
+ 0150 0E940000          xcall _eeprom_write
+ 0154                   .dbline 100
+ 0154           ;               Driver_595(0x00,0x00);
+ 0154 2227              clr R18
+ 0156 3327              clr R19
+ 0158 0027              clr R16
+ 015A 1127              clr R17
+ 015C 0E940000          xcall _Driver_595
+ 0160                   .dbline 101
+ 0160           ;               delay_ms(10);
+ 0160 0AE0              ldi R16,10
+ 0162 10E0              ldi R17,0
+ 0164 0E940000          xcall _delay_ms
+ 0168                   .dbline 102
+ 0168           ;               reset();
+ 0168 0E940000          xcall _reset
+ 016C                   .dbline 103
+ 016C           ;       }
+ 016C           L26:
+ 016C                   .dbline -2
+ 016C           L25:
+ 016C                   .dbline 0 ; func end
+ 016C 4991              ld R20,y+
+ 016E 0990              ld R0,y+
+ 0170 0FBE              OUT 63,R0
+ 0172 F991              ld R31,y+
+ 0174 E991              ld R30,y+
+ 0176 B991              ld R27,y+
+ 0178 A991              ld R26,y+
+ 017A 9991              ld R25,y+
+ 017C 8991              ld R24,y+
+ 017E 3991              ld R19,y+
+ 0180 2991              ld R18,y+
+ 0182 1991              ld R17,y+
+ 0184 0991              ld R16,y+
+ 0186 9990              ld R9,y+
+ 0188 8990              ld R8,y+
+ 018A 7990              ld R7,y+
+ 018C 6990              ld R6,y+
+ 018E 5990              ld R5,y+
+ 0190 4990              ld R4,y+
+ 0192 3990              ld R3,y+
+ 0194 2990              ld R2,y+
+ 0196 1990              ld R1,y+
+ 0198 0990              ld R0,y+
+ 019A 1895              reti
+ 019C                   .dbsym r temp 20 c
+ 019C                   .dbend
+                        .area vector(rom, abs)
+                        .org 32
+ 0020 0C94CE00          jmp _timer1_ovf_isr
+                        .area text(rom, con, rel)
+ 019C                   .dbfile F:\avr\状态机大作业\main.c
+ 019C                   .dbfunc e timer1_ovf_isr _timer1_ovf_isr fV
+                        .even
+ 019C           _timer1_ovf_isr::
+ 019C 2A92              st -y,R2
+ 019E 3A92              st -y,R3
+ 01A0 8A93              st -y,R24
+ 01A2 9A93              st -y,R25
+ 01A4 2FB6              IN R2,63
+ 01A6 2A92              st -y,R2
+ 01A8                   .dbline -1
+ 01A8                   .dbline 111
+ 01A8           ; }
+ 01A8           ; /*串口*/
+ 01A8           ; 
+ 01A8           ; 
+ 01A8           ; /*蜂鸣器改变调子需要*/
+ 01A8           ; #pragma interrupt_handler timer1_ovf_isr:iv_TIM1_OVF
+ 01A8           ; void timer1_ovf_isr(void)                                                                                                                     //蜂鸣器改变调子需要
+ 01A8           ; {
+ 01A8                   .dbline 112
+ 01A8           ;       if(beat)
+ 01A8 20900A00          lds R2,_beat
+ 01AC 30900B00          lds R3,_beat+1
+ 01B0 2220              tst R2
+ 01B2 11F4              brne X8
+ 01B4 3320              tst R3
+ 01B6 A1F0              breq L29
+ 01B8           X8:
+ 01B8                   .dbline 113
+ 01B8           ;       {       
+ 01B8                   .dbline 114
+ 01B8           ;               PORTD ^= BIT(7);     //蜂鸣器接入口电平翻转
+ 01B8 80E8              ldi R24,128
+ 01BA 90E0              ldi R25,0
+ 01BC 22B2              in R2,0x12
+ 01BE 3324              clr R3
+ 01C0 2826              eor R2,R24
+ 01C2 3926              eor R3,R25
+ 01C4 22BA              out 0x12,R2
+ 01C6                   .dbline 115
+ 01C6           ;               TCNT1H=beat/256;                        
+ 01C6 20900A00          lds R2,_beat
+ 01CA 30900B00          lds R3,_beat+1
+ 01CE 232C              mov R2,R3
+ 01D0 3324              clr R3
+ 01D2 2DBC              out 0x2d,R2
+ 01D4                   .dbline 116
+ 01D4           ;               TCNT1L=beat%256;     //将音符对应的计数值写入计时器
+ 01D4 80910A00          lds R24,_beat
+ 01D8 90910B00          lds R25,_beat+1
+ 01DC 9070              andi R25,0
+ 01DE 8CBD              out 0x2c,R24
+ 01E0                   .dbline 117
+ 01E0           ;       }
+ 01E0           L29:
+ 01E0                   .dbline -2
+ 01E0           L28:
+ 01E0                   .dbline 0 ; func end
+ 01E0 2990              ld R2,y+
+ 01E2 2FBE              OUT 63,R2
+ 01E4 9991              ld R25,y+
+ 01E6 8991              ld R24,y+
+ 01E8 3990              ld R3,y+
+ 01EA 2990              ld R2,y+
+ 01EC 1895              reti
+ 01EE                   .dbend
+                        .area data(ram, con, rel)
+ 0005                   .dbfile F:\avr\状态机大作业\main.c
+ 0005           L32:
+ 0005                   .blkb 2
+                        .area idata
+ 0005 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0007                   .dbfile F:\avr\状态机大作业\main.c
+ 0007                   .blkb 2
+                        .area idata
+ 0007 0C00              .word 12
+                        .area data(ram, con, rel)
+ 0009                   .dbfile F:\avr\状态机大作业\main.c
+ 0009                   .blkb 2
+                        .area idata
+ 0009 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 000B                   .dbfile F:\avr\状态机大作业\main.c
+ 000B                   .blkb 2
+                        .area idata
+ 000B 0400              .word 4
+                        .area data(ram, con, rel)
+ 000D                   .dbfile F:\avr\状态机大作业\main.c
+ 000D                   .blkb 2
+                        .area idata
+ 000D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 000F                   .dbfile F:\avr\状态机大作业\main.c
+ 000F                   .blkb 2
+                        .area idata
+ 000F 0800              .word 8
+                        .area data(ram, con, rel)
+ 0011                   .dbfile F:\avr\状态机大作业\main.c
+ 0011                   .blkb 2
+                        .area idata
+ 0011 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0013                   .dbfile F:\avr\状态机大作业\main.c
+ 0013                   .blkb 2
+                        .area idata
+ 0013 0400              .word 4
+                        .area data(ram, con, rel)
+ 0015                   .dbfile F:\avr\状态机大作业\main.c
+ 0015                   .blkb 2
+                        .area idata
+ 0015 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0017                   .dbfile F:\avr\状态机大作业\main.c
+ 0017                   .blkb 2
+                        .area idata
+ 0017 0400              .word 4
+                        .area data(ram, con, rel)
+ 0019                   .dbfile F:\avr\状态机大作业\main.c
+ 0019                   .blkb 2
+                        .area idata
+ 0019 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 001B                   .dbfile F:\avr\状态机大作业\main.c
+ 001B                   .blkb 2
+                        .area idata
+ 001B 2000              .word 32
+                        .area data(ram, con, rel)
+ 001D                   .dbfile F:\avr\状态机大作业\main.c
+ 001D                   .blkb 2
+                        .area idata
+ 001D E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 001F                   .dbfile F:\avr\状态机大作业\main.c
+ 001F                   .blkb 2
+                        .area idata
+ 001F 0C00              .word 12
+                        .area data(ram, con, rel)
+ 0021                   .dbfile F:\avr\状态机大作业\main.c
+ 0021                   .blkb 2
+                        .area idata
+ 0021 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0023                   .dbfile F:\avr\状态机大作业\main.c
+ 0023                   .blkb 2
+                        .area idata
+ 0023 0400              .word 4
+                        .area data(ram, con, rel)
+ 0025                   .dbfile F:\avr\状态机大作业\main.c
+ 0025                   .blkb 2
+                        .area idata
+ 0025 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 0027                   .dbfile F:\avr\状态机大作业\main.c
+ 0027                   .blkb 2
+                        .area idata
+ 0027 0800              .word 8
+                        .area data(ram, con, rel)
+ 0029                   .dbfile F:\avr\状态机大作业\main.c
+ 0029                   .blkb 2
+                        .area idata
+ 0029 EAF9              .word 63978
+                        .area data(ram, con, rel)
+ 002B                   .dbfile F:\avr\状态机大作业\main.c
+ 002B                   .blkb 2
+                        .area idata
+ 002B 0400              .word 4
+                        .area data(ram, con, rel)
+ 002D                   .dbfile F:\avr\状态机大作业\main.c
+ 002D                   .blkb 2
+                        .area idata
+ 002D 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 002F                   .dbfile F:\avr\状态机大作业\main.c
+ 002F                   .blkb 2
+                        .area idata
+ 002F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0031                   .dbfile F:\avr\状态机大作业\main.c
+ 0031                   .blkb 2
+                        .area idata
+ 0031 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0033                   .dbfile F:\avr\状态机大作业\main.c
+ 0033                   .blkb 2
+                        .area idata
+ 0033 2000              .word 32
+                        .area data(ram, con, rel)
+ 0035                   .dbfile F:\avr\状态机大作业\main.c
+ 0035                   .blkb 2
+                        .area idata
+ 0035 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0037                   .dbfile F:\avr\状态机大作业\main.c
+ 0037                   .blkb 2
+                        .area idata
+ 0037 0C00              .word 12
+                        .area data(ram, con, rel)
+ 0039                   .dbfile F:\avr\状态机大作业\main.c
+ 0039                   .blkb 2
+                        .area idata
+ 0039 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 003B                   .dbfile F:\avr\状态机大作业\main.c
+ 003B                   .blkb 2
+                        .area idata
+ 003B 0400              .word 4
+                        .area data(ram, con, rel)
+ 003D                   .dbfile F:\avr\状态机大作业\main.c
+ 003D                   .blkb 2
+                        .area idata
+ 003D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 003F                   .dbfile F:\avr\状态机大作业\main.c
+ 003F                   .blkb 2
+                        .area idata
+ 003F 0800              .word 8
+                        .area data(ram, con, rel)
+ 0041                   .dbfile F:\avr\状态机大作业\main.c
+ 0041                   .blkb 2
+                        .area idata
+ 0041 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0043                   .dbfile F:\avr\状态机大作业\main.c
+ 0043                   .blkb 2
+                        .area idata
+ 0043 0800              .word 8
+                        .area data(ram, con, rel)
+ 0045                   .dbfile F:\avr\状态机大作业\main.c
+ 0045                   .blkb 2
+                        .area idata
+ 0045 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0047                   .dbfile F:\avr\状态机大作业\main.c
+ 0047                   .blkb 2
+                        .area idata
+ 0047 2000              .word 32
+                        .area data(ram, con, rel)
+ 0049                   .dbfile F:\avr\状态机大作业\main.c
+ 0049                   .blkb 2
+                        .area idata
+ 0049 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 004B                   .dbfile F:\avr\状态机大作业\main.c
+ 004B                   .blkb 2
+                        .area idata
+ 004B 1600              .word 22
+                        .area data(ram, con, rel)
+ 004D                   .dbfile F:\avr\状态机大作业\main.c
+ 004D                   .blkb 2
+                        .area idata
+ 004D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 004F                   .dbfile F:\avr\状态机大作业\main.c
+ 004F                   .blkb 2
+                        .area idata
+ 004F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0051                   .dbfile F:\avr\状态机大作业\main.c
+ 0051                   .blkb 2
+                        .area idata
+ 0051 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0053                   .dbfile F:\avr\状态机大作业\main.c
+ 0053                   .blkb 2
+                        .area idata
+ 0053 0800              .word 8
+                        .area data(ram, con, rel)
+ 0055                   .dbfile F:\avr\状态机大作业\main.c
+ 0055                   .blkb 2
+                        .area idata
+ 0055 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0057                   .dbfile F:\avr\状态机大作业\main.c
+ 0057                   .blkb 2
+                        .area idata
+ 0057 0400              .word 4
+                        .area data(ram, con, rel)
+ 0059                   .dbfile F:\avr\状态机大作业\main.c
+ 0059                   .blkb 2
+                        .area idata
+ 0059 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 005B                   .dbfile F:\avr\状态机大作业\main.c
+ 005B                   .blkb 2
+                        .area idata
+ 005B 0400              .word 4
+                        .area data(ram, con, rel)
+ 005D                   .dbfile F:\avr\状态机大作业\main.c
+ 005D                   .blkb 2
+                        .area idata
+ 005D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 005F                   .dbfile F:\avr\状态机大作业\main.c
+ 005F                   .blkb 2
+                        .area idata
+ 005F 2000              .word 32
+                        .area data(ram, con, rel)
+ 0061                   .dbfile F:\avr\状态机大作业\main.c
+ 0061                   .blkb 2
+                        .area idata
+ 0061 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0063                   .dbfile F:\avr\状态机大作业\main.c
+ 0063                   .blkb 2
+                        .area idata
+ 0063 1800              .word 24
+                        .area data(ram, con, rel)
+ 0065                   .dbfile F:\avr\状态机大作业\main.c
+ 0065                   .blkb 2
+                        .area idata
+ 0065 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0067                   .dbfile F:\avr\状态机大作业\main.c
+ 0067                   .blkb 2
+                        .area idata
+ 0067 0800              .word 8
+                        .area data(ram, con, rel)
+ 0069                   .dbfile F:\avr\状态机大作业\main.c
+ 0069                   .blkb 2
+                        .area idata
+ 0069 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 006B                   .dbfile F:\avr\状态机大作业\main.c
+ 006B                   .blkb 2
+                        .area idata
+ 006B 1800              .word 24
+                        .area data(ram, con, rel)
+ 006D                   .dbfile F:\avr\状态机大作业\main.c
+ 006D                   .blkb 2
+                        .area idata
+ 006D 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 006F                   .dbfile F:\avr\状态机大作业\main.c
+ 006F                   .blkb 2
+                        .area idata
+ 006F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0071                   .dbfile F:\avr\状态机大作业\main.c
+ 0071                   .blkb 2
+                        .area idata
+ 0071 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0073                   .dbfile F:\avr\状态机大作业\main.c
+ 0073                   .blkb 2
+                        .area idata
+ 0073 0400              .word 4
+                        .area data(ram, con, rel)
+ 0075                   .dbfile F:\avr\状态机大作业\main.c
+ 0075                   .blkb 2
+                        .area idata
+ 0075 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0077                   .dbfile F:\avr\状态机大作业\main.c
+ 0077                   .blkb 2
+                        .area idata
+ 0077 1000              .word 16
+                        .area data(ram, con, rel)
+ 0079                   .dbfile F:\avr\状态机大作业\main.c
+ 0079                   .blkb 2
+                        .area idata
+ 0079 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 007B                   .dbfile F:\avr\状态机大作业\main.c
+ 007B                   .blkb 2
+                        .area idata
+ 007B 0400              .word 4
+                        .area data(ram, con, rel)
+ 007D                   .dbfile F:\avr\状态机大作业\main.c
+ 007D                   .blkb 2
+                        .area idata
+ 007D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 007F                   .dbfile F:\avr\状态机大作业\main.c
+ 007F                   .blkb 2
+                        .area idata
+ 007F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0081                   .dbfile F:\avr\状态机大作业\main.c
+ 0081                   .blkb 2
+                        .area idata
+ 0081 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0083                   .dbfile F:\avr\状态机大作业\main.c
+ 0083                   .blkb 2
+                        .area idata
+ 0083 0400              .word 4
+                        .area data(ram, con, rel)
+ 0085                   .dbfile F:\avr\状态机大作业\main.c
+ 0085                   .blkb 2
+                        .area idata
+ 0085 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0087                   .dbfile F:\avr\状态机大作业\main.c
+ 0087                   .blkb 2
+                        .area idata
+ 0087 0400              .word 4
+                        .area data(ram, con, rel)
+ 0089                   .dbfile F:\avr\状态机大作业\main.c
+ 0089                   .blkb 2
+                        .area idata
+ 0089 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 008B                   .dbfile F:\avr\状态机大作业\main.c
+ 008B                   .blkb 2
+                        .area idata
+ 008B 1800              .word 24
+                        .area data(ram, con, rel)
+ 008D                   .dbfile F:\avr\状态机大作业\main.c
+ 008D                   .blkb 2
+                        .area idata
+ 008D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 008F                   .dbfile F:\avr\状态机大作业\main.c
+ 008F                   .blkb 2
+                        .area idata
+ 008F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0091                   .dbfile F:\avr\状态机大作业\main.c
+ 0091                   .blkb 2
+                        .area idata
+ 0091 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0093                   .dbfile F:\avr\状态机大作业\main.c
+ 0093                   .blkb 2
+                        .area idata
+ 0093 0400              .word 4
+                        .area data(ram, con, rel)
+ 0095                   .dbfile F:\avr\状态机大作业\main.c
+ 0095                   .blkb 2
+                        .area idata
+ 0095 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0097                   .dbfile F:\avr\状态机大作业\main.c
+ 0097                   .blkb 2
+                        .area idata
+ 0097 1800              .word 24
+                        .area data(ram, con, rel)
+ 0099                   .dbfile F:\avr\状态机大作业\main.c
+ 0099                   .blkb 2
+                        .area idata
+ 0099 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 009B                   .dbfile F:\avr\状态机大作业\main.c
+ 009B                   .blkb 2
+                        .area idata
+ 009B 0400              .word 4
+                        .area data(ram, con, rel)
+ 009D                   .dbfile F:\avr\状态机大作业\main.c
+ 009D                   .blkb 2
+                        .area idata
+ 009D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 009F                   .dbfile F:\avr\状态机大作业\main.c
+ 009F                   .blkb 2
+                        .area idata
+ 009F 0400              .word 4
+                        .area data(ram, con, rel)
+ 00A1                   .dbfile F:\avr\状态机大作业\main.c
+ 00A1                   .blkb 2
+                        .area idata
+ 00A1 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 00A3                   .dbfile F:\avr\状态机大作业\main.c
+ 00A3                   .blkb 2
+                        .area idata
+ 00A3 2000              .word 32
+                        .area data(ram, con, rel)
+ 00A5                   .dbfile F:\avr\状态机大作业\main.c
+ 00A5                   .blkb 2
+                        .area idata
+ 00A5 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 00A7                   .dbfile F:\avr\状态机大作业\main.c
+ 00A7                   .blkb 2
+                        .area idata
+ 00A7 0400              .word 4
+                        .area data(ram, con, rel)
+ 00A9                   .dbfile F:\avr\状态机大作业\main.c
+ 00A9                   .blkb 2
+                        .area idata
+ 00A9 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00AB                   .dbfile F:\avr\状态机大作业\main.c
+ 00AB                   .blkb 2
+                        .area idata
+ 00AB 0400              .word 4
+                        .area data(ram, con, rel)
+ 00AD                   .dbfile F:\avr\状态机大作业\main.c
+ 00AD                   .blkb 2
+                        .area idata
+ 00AD E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 00AF                   .dbfile F:\avr\状态机大作业\main.c
+ 00AF                   .blkb 2
+                        .area idata
+ 00AF 1000              .word 16
+                        .area data(ram, con, rel)
+ 00B1                   .dbfile F:\avr\状态机大作业\main.c
+ 00B1                   .blkb 2
+                        .area idata
+ 00B1 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 00B3                   .dbfile F:\avr\状态机大作业\main.c
+ 00B3                   .blkb 2
+                        .area idata
+ 00B3 0400              .word 4
+                        .area data(ram, con, rel)
+ 00B5                   .dbfile F:\avr\状态机大作业\main.c
+ 00B5                   .blkb 2
+                        .area idata
+ 00B5 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 00B7                   .dbfile F:\avr\状态机大作业\main.c
+ 00B7                   .blkb 2
+                        .area idata
+ 00B7 0400              .word 4
+                        .area data(ram, con, rel)
+ 00B9                   .dbfile F:\avr\状态机大作业\main.c
+ 00B9                   .blkb 2
+                        .area idata
+ 00B9 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00BB                   .dbfile F:\avr\状态机大作业\main.c
+ 00BB                   .blkb 2
+                        .area idata
+ 00BB 2000              .word 32
+                        .area data(ram, con, rel)
+ 00BD                   .dbfile F:\avr\状态机大作业\main.c
+ 00BD                   .blkb 2
+                        .area idata
+ 00BD A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00BF                   .dbfile F:\avr\状态机大作业\main.c
+ 00BF                   .blkb 2
+                        .area idata
+ 00BF 0C00              .word 12
+                        .area data(ram, con, rel)
+ 00C1                   .dbfile F:\avr\状态机大作业\main.c
+ 00C1                   .blkb 2
+                        .area idata
+ 00C1 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 00C3                   .dbfile F:\avr\状态机大作业\main.c
+ 00C3                   .blkb 2
+                        .area idata
+ 00C3 0400              .word 4
+                        .area data(ram, con, rel)
+ 00C5                   .dbfile F:\avr\状态机大作业\main.c
+ 00C5                   .blkb 2
+                        .area idata
+ 00C5 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 00C7                   .dbfile F:\avr\状态机大作业\main.c
+ 00C7                   .blkb 2
+                        .area idata
+ 00C7 0800              .word 8
+                        .area data(ram, con, rel)
+ 00C9                   .dbfile F:\avr\状态机大作业\main.c
+ 00C9                   .blkb 2
+                        .area idata
+ 00C9 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 00CB                   .dbfile F:\avr\状态机大作业\main.c
+ 00CB                   .blkb 2
+                        .area idata
+ 00CB 0400              .word 4
+                        .area data(ram, con, rel)
+ 00CD                   .dbfile F:\avr\状态机大作业\main.c
+ 00CD                   .blkb 2
+                        .area idata
+ 00CD 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 00CF                   .dbfile F:\avr\状态机大作业\main.c
+ 00CF                   .blkb 2
+                        .area idata
+ 00CF 0400              .word 4
+                        .area data(ram, con, rel)
+ 00D1                   .dbfile F:\avr\状态机大作业\main.c
+ 00D1                   .blkb 2
+                        .area idata
+ 00D1 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 00D3                   .dbfile F:\avr\状态机大作业\main.c
+ 00D3                   .blkb 2
+                        .area idata
+ 00D3 2000              .word 32
+                        .area data(ram, con, rel)
+ 00D5                   .dbfile F:\avr\状态机大作业\main.c
+ 00D5                   .blkb 2
+                        .area idata
+ 00D5 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 00D7                   .dbfile F:\avr\状态机大作业\main.c
+ 00D7                   .blkb 2
+                        .area idata
+ 00D7 0C00              .word 12
+                        .area data(ram, con, rel)
+ 00D9                   .dbfile F:\avr\状态机大作业\main.c
+ 00D9                   .blkb 2
+                        .area idata
+ 00D9 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00DB                   .dbfile F:\avr\状态机大作业\main.c
+ 00DB                   .blkb 2
+                        .area idata
+ 00DB 0400              .word 4
+                        .area data(ram, con, rel)
+ 00DD                   .dbfile F:\avr\状态机大作业\main.c
+ 00DD                   .blkb 2
+                        .area idata
+ 00DD 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 00DF                   .dbfile F:\avr\状态机大作业\main.c
+ 00DF                   .blkb 2
+                        .area idata
+ 00DF 0800              .word 8
+                        .area data(ram, con, rel)
+ 00E1                   .dbfile F:\avr\状态机大作业\main.c
+ 00E1                   .blkb 2
+                        .area idata
+ 00E1 EAF9              .word 63978
+                        .area data(ram, con, rel)
+ 00E3                   .dbfile F:\avr\状态机大作业\main.c
+ 00E3                   .blkb 2
+                        .area idata
+ 00E3 0400              .word 4
+                        .area data(ram, con, rel)
+ 00E5                   .dbfile F:\avr\状态机大作业\main.c
+ 00E5                   .blkb 2
+                        .area idata
+ 00E5 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 00E7                   .dbfile F:\avr\状态机大作业\main.c
+ 00E7                   .blkb 2
+                        .area idata
+ 00E7 0400              .word 4
+                        .area data(ram, con, rel)
+ 00E9                   .dbfile F:\avr\状态机大作业\main.c
+ 00E9                   .blkb 2
+                        .area idata
+ 00E9 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00EB                   .dbfile F:\avr\状态机大作业\main.c
+ 00EB                   .blkb 2
+                        .area idata
+ 00EB 2000              .word 32
+                        .area data(ram, con, rel)
+ 00ED                   .dbfile F:\avr\状态机大作业\main.c
+ 00ED                   .blkb 2
+                        .area idata
+ 00ED 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 00EF                   .dbfile F:\avr\状态机大作业\main.c
+ 00EF                   .blkb 2
+                        .area idata
+ 00EF 0C00              .word 12
+                        .area data(ram, con, rel)
+ 00F1                   .dbfile F:\avr\状态机大作业\main.c
+ 00F1                   .blkb 2
+                        .area idata
+ 00F1 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00F3                   .dbfile F:\avr\状态机大作业\main.c
+ 00F3                   .blkb 2
+                        .area idata
+ 00F3 0400              .word 4
+                        .area data(ram, con, rel)
+ 00F5                   .dbfile F:\avr\状态机大作业\main.c
+ 00F5                   .blkb 2
+                        .area idata
+ 00F5 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 00F7                   .dbfile F:\avr\状态机大作业\main.c
+ 00F7                   .blkb 2
+                        .area idata
+ 00F7 0800              .word 8
+                        .area data(ram, con, rel)
+ 00F9                   .dbfile F:\avr\状态机大作业\main.c
+ 00F9                   .blkb 2
+                        .area idata
+ 00F9 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 00FB                   .dbfile F:\avr\状态机大作业\main.c
+ 00FB                   .blkb 2
+                        .area idata
+ 00FB 0800              .word 8
+                        .area data(ram, con, rel)
+ 00FD                   .dbfile F:\avr\状态机大作业\main.c
+ 00FD                   .blkb 2
+                        .area idata
+ 00FD 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 00FF                   .dbfile F:\avr\状态机大作业\main.c
+ 00FF                   .blkb 2
+                        .area idata
+ 00FF 2000              .word 32
+                        .area data(ram, con, rel)
+ 0101                   .dbfile F:\avr\状态机大作业\main.c
+ 0101                   .blkb 2
+                        .area idata
+ 0101 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 0103                   .dbfile F:\avr\状态机大作业\main.c
+ 0103                   .blkb 2
+                        .area idata
+ 0103 0C00              .word 12
+                        .area data(ram, con, rel)
+ 0105                   .dbfile F:\avr\状态机大作业\main.c
+ 0105                   .blkb 2
+                        .area idata
+ 0105 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0107                   .dbfile F:\avr\状态机大作业\main.c
+ 0107                   .blkb 2
+                        .area idata
+ 0107 0400              .word 4
+                        .area data(ram, con, rel)
+ 0109                   .dbfile F:\avr\状态机大作业\main.c
+ 0109                   .blkb 2
+                        .area idata
+ 0109 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 010B                   .dbfile F:\avr\状态机大作业\main.c
+ 010B                   .blkb 2
+                        .area idata
+ 010B 0800              .word 8
+                        .area data(ram, con, rel)
+ 010D                   .dbfile F:\avr\状态机大作业\main.c
+ 010D                   .blkb 2
+                        .area idata
+ 010D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 010F                   .dbfile F:\avr\状态机大作业\main.c
+ 010F                   .blkb 2
+                        .area idata
+ 010F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0111                   .dbfile F:\avr\状态机大作业\main.c
+ 0111                   .blkb 2
+                        .area idata
+ 0111 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0113                   .dbfile F:\avr\状态机大作业\main.c
+ 0113                   .blkb 2
+                        .area idata
+ 0113 0400              .word 4
+                        .area data(ram, con, rel)
+ 0115                   .dbfile F:\avr\状态机大作业\main.c
+ 0115                   .blkb 2
+                        .area idata
+ 0115 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0117                   .dbfile F:\avr\状态机大作业\main.c
+ 0117                   .blkb 2
+                        .area idata
+ 0117 2000              .word 32
+                        .area data(ram, con, rel)
+ 0119                   .dbfile F:\avr\状态机大作业\main.c
+ 0119                   .blkb 2
+                        .area idata
+ 0119 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 011B                   .dbfile F:\avr\状态机大作业\main.c
+ 011B                   .blkb 2
+                        .area idata
+ 011B 1800              .word 24
+                        .area data(ram, con, rel)
+ 011D                   .dbfile F:\avr\状态机大作业\main.c
+ 011D                   .blkb 2
+                        .area idata
+ 011D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 011F                   .dbfile F:\avr\状态机大作业\main.c
+ 011F                   .blkb 2
+                        .area idata
+ 011F 0800              .word 8
+                        .area data(ram, con, rel)
+ 0121                   .dbfile F:\avr\状态机大作业\main.c
+ 0121                   .blkb 2
+                        .area idata
+ 0121 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0123                   .dbfile F:\avr\状态机大作业\main.c
+ 0123                   .blkb 2
+                        .area idata
+ 0123 1800              .word 24
+                        .area data(ram, con, rel)
+ 0125                   .dbfile F:\avr\状态机大作业\main.c
+ 0125                   .blkb 2
+                        .area idata
+ 0125 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0127                   .dbfile F:\avr\状态机大作业\main.c
+ 0127                   .blkb 2
+                        .area idata
+ 0127 0400              .word 4
+                        .area data(ram, con, rel)
+ 0129                   .dbfile F:\avr\状态机大作业\main.c
+ 0129                   .blkb 2
+                        .area idata
+ 0129 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 012B                   .dbfile F:\avr\状态机大作业\main.c
+ 012B                   .blkb 2
+                        .area idata
+ 012B 0400              .word 4
+                        .area data(ram, con, rel)
+ 012D                   .dbfile F:\avr\状态机大作业\main.c
+ 012D                   .blkb 2
+                        .area idata
+ 012D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 012F                   .dbfile F:\avr\状态机大作业\main.c
+ 012F                   .blkb 2
+                        .area idata
+ 012F 1000              .word 16
+                        .area data(ram, con, rel)
+ 0131                   .dbfile F:\avr\状态机大作业\main.c
+ 0131                   .blkb 2
+                        .area idata
+ 0131 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0133                   .dbfile F:\avr\状态机大作业\main.c
+ 0133                   .blkb 2
+                        .area idata
+ 0133 0400              .word 4
+                        .area data(ram, con, rel)
+ 0135                   .dbfile F:\avr\状态机大作业\main.c
+ 0135                   .blkb 2
+                        .area idata
+ 0135 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0137                   .dbfile F:\avr\状态机大作业\main.c
+ 0137                   .blkb 2
+                        .area idata
+ 0137 0400              .word 4
+                        .area data(ram, con, rel)
+ 0139                   .dbfile F:\avr\状态机大作业\main.c
+ 0139                   .blkb 2
+                        .area idata
+ 0139 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 013B                   .dbfile F:\avr\状态机大作业\main.c
+ 013B                   .blkb 2
+                        .area idata
+ 013B 0400              .word 4
+                        .area data(ram, con, rel)
+ 013D                   .dbfile F:\avr\状态机大作业\main.c
+ 013D                   .blkb 2
+                        .area idata
+ 013D 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 013F                   .dbfile F:\avr\状态机大作业\main.c
+ 013F                   .blkb 2
+                        .area idata
+ 013F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0141                   .dbfile F:\avr\状态机大作业\main.c
+ 0141                   .blkb 2
+                        .area idata
+ 0141 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0143                   .dbfile F:\avr\状态机大作业\main.c
+ 0143                   .blkb 2
+                        .area idata
+ 0143 1800              .word 24
+                        .area data(ram, con, rel)
+ 0145                   .dbfile F:\avr\状态机大作业\main.c
+ 0145                   .blkb 2
+                        .area idata
+ 0145 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0147                   .dbfile F:\avr\状态机大作业\main.c
+ 0147                   .blkb 2
+                        .area idata
+ 0147 0400              .word 4
+                        .area data(ram, con, rel)
+ 0149                   .dbfile F:\avr\状态机大作业\main.c
+ 0149                   .blkb 2
+                        .area idata
+ 0149 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 014B                   .dbfile F:\avr\状态机大作业\main.c
+ 014B                   .blkb 2
+                        .area idata
+ 014B 0400              .word 4
+                        .area data(ram, con, rel)
+ 014D                   .dbfile F:\avr\状态机大作业\main.c
+ 014D                   .blkb 2
+                        .area idata
+ 014D 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 014F                   .dbfile F:\avr\状态机大作业\main.c
+ 014F                   .blkb 2
+                        .area idata
+ 014F 1800              .word 24
+                        .area data(ram, con, rel)
+ 0151                   .dbfile F:\avr\状态机大作业\main.c
+ 0151                   .blkb 2
+                        .area idata
+ 0151 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0153                   .dbfile F:\avr\状态机大作业\main.c
+ 0153                   .blkb 2
+                        .area idata
+ 0153 0400              .word 4
+                        .area data(ram, con, rel)
+ 0155                   .dbfile F:\avr\状态机大作业\main.c
+ 0155                   .blkb 2
+                        .area idata
+ 0155 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0157                   .dbfile F:\avr\状态机大作业\main.c
+ 0157                   .blkb 2
+                        .area idata
+ 0157 0400              .word 4
+                        .area data(ram, con, rel)
+ 0159                   .dbfile F:\avr\状态机大作业\main.c
+ 0159                   .blkb 2
+                        .area idata
+ 0159 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 015B                   .dbfile F:\avr\状态机大作业\main.c
+ 015B                   .blkb 2
+                        .area idata
+ 015B 2000              .word 32
+                        .area data(ram, con, rel)
+ 015D                   .dbfile F:\avr\状态机大作业\main.c
+ 015D                   .blkb 2
+                        .area idata
+ 015D 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 015F                   .dbfile F:\avr\状态机大作业\main.c
+ 015F                   .blkb 2
+                        .area idata
+ 015F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0161                   .dbfile F:\avr\状态机大作业\main.c
+ 0161                   .blkb 2
+                        .area idata
+ 0161 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0163                   .dbfile F:\avr\状态机大作业\main.c
+ 0163                   .blkb 2
+                        .area idata
+ 0163 0400              .word 4
+                        .area data(ram, con, rel)
+ 0165                   .dbfile F:\avr\状态机大作业\main.c
+ 0165                   .blkb 2
+                        .area idata
+ 0165 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0167                   .dbfile F:\avr\状态机大作业\main.c
+ 0167                   .blkb 2
+                        .area idata
+ 0167 1000              .word 16
+                        .area data(ram, con, rel)
+ 0169                   .dbfile F:\avr\状态机大作业\main.c
+ 0169                   .blkb 2
+                        .area idata
+ 0169 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 016B                   .dbfile F:\avr\状态机大作业\main.c
+ 016B                   .blkb 2
+                        .area idata
+ 016B 0400              .word 4
+                        .area data(ram, con, rel)
+ 016D                   .dbfile F:\avr\状态机大作业\main.c
+ 016D                   .blkb 2
+                        .area idata
+ 016D 63FA              .word 64099
+                        .area data(ram, con, rel)
+ 016F                   .dbfile F:\avr\状态机大作业\main.c
+ 016F                   .blkb 2
+                        .area idata
+ 016F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0171                   .dbfile F:\avr\状态机大作业\main.c
+ 0171                   .blkb 2
+                        .area idata
+ 0171 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 0173                   .dbfile F:\avr\状态机大作业\main.c
+ 0173                   .blkb 2
+                        .area idata
+ 0173 2000              .word 32
+                        .area data(ram, con, rel)
+ 0175                   .dbfile F:\avr\状态机大作业\main.c
+ 0175                   .blkb 2
+                        .area idata
+ 0175 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0177                   .dbfile F:\avr\状态机大作业\main.c
+ 0177                   .blkb 2
+                        .area idata
+ 0177 1800              .word 24
+                        .area data(ram, con, rel)
+ 0179                   .dbfile F:\avr\状态机大作业\main.c
+ 0179                   .blkb 2
+                        .area idata
+ 0179 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 017B                   .dbfile F:\avr\状态机大作业\main.c
+ 017B                   .blkb 2
+                        .area idata
+ 017B 0400              .word 4
+                        .area data(ram, con, rel)
+ 017D                   .dbfile F:\avr\状态机大作业\main.c
+ 017D                   .blkb 2
+                        .area idata
+ 017D 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 017F                   .dbfile F:\avr\状态机大作业\main.c
+ 017F                   .blkb 2
+                        .area idata
+ 017F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0181                   .dbfile F:\avr\状态机大作业\main.c
+ 0181                   .blkb 2
+                        .area idata
+ 0181 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0183                   .dbfile F:\avr\状态机大作业\main.c
+ 0183                   .blkb 2
+                        .area idata
+ 0183 2000              .word 32
+                        .area data(ram, con, rel)
+ 0185                   .dbfile F:\avr\状态机大作业\main.c
+ 0185                   .blkb 2
+                        .area idata
+ 0185 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0187                   .dbfile F:\avr\状态机大作业\main.c
+ 0187                   .blkb 2
+                        .area idata
+ 0187 1800              .word 24
+                        .area data(ram, con, rel)
+ 0189                   .dbfile F:\avr\状态机大作业\main.c
+ 0189                   .blkb 2
+                        .area idata
+ 0189 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 018B                   .dbfile F:\avr\状态机大作业\main.c
+ 018B                   .blkb 2
+                        .area idata
+ 018B 0400              .word 4
+                        .area data(ram, con, rel)
+ 018D                   .dbfile F:\avr\状态机大作业\main.c
+ 018D                   .blkb 2
+                        .area idata
+ 018D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 018F                   .dbfile F:\avr\状态机大作业\main.c
+ 018F                   .blkb 2
+                        .area idata
+ 018F 0400              .word 4
+                        .area data(ram, con, rel)
+ 0191                   .dbfile F:\avr\状态机大作业\main.c
+ 0191                   .blkb 2
+                        .area idata
+ 0191 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0193                   .dbfile F:\avr\状态机大作业\main.c
+ 0193                   .blkb 2
+                        .area idata
+ 0193 1800              .word 24
+                        .area data(ram, con, rel)
+ 0195                   .dbfile F:\avr\状态机大作业\main.c
+ 0195                   .blkb 2
+                        .area idata
+ 0195 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0197                   .dbfile F:\avr\状态机大作业\main.c
+ 0197                   .blkb 2
+                        .area idata
+ 0197 0400              .word 4
+                        .area data(ram, con, rel)
+ 0199                   .dbfile F:\avr\状态机大作业\main.c
+ 0199                   .blkb 2
+                        .area idata
+ 0199 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 019B                   .dbfile F:\avr\状态机大作业\main.c
+ 019B                   .blkb 2
+                        .area idata
+ 019B 0400              .word 4
+                        .area data(ram, con, rel)
+ 019D                   .dbfile F:\avr\状态机大作业\main.c
+ 019D                   .blkb 2
+                        .area idata
+ 019D 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 019F                   .dbfile F:\avr\状态机大作业\main.c
+ 019F                   .blkb 2
+                        .area idata
+ 019F 1800              .word 24
+                        .area data(ram, con, rel)
+ 01A1                   .dbfile F:\avr\状态机大作业\main.c
+ 01A1                   .blkb 2
+                        .area idata
+ 01A1 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 01A3                   .dbfile F:\avr\状态机大作业\main.c
+ 01A3                   .blkb 2
+                        .area idata
+ 01A3 0400              .word 4
+                        .area data(ram, con, rel)
+ 01A5                   .dbfile F:\avr\状态机大作业\main.c
+ 01A5                   .blkb 2
+                        .area idata
+ 01A5 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 01A7                   .dbfile F:\avr\状态机大作业\main.c
+ 01A7                   .blkb 2
+                        .area idata
+ 01A7 0400              .word 4
+                        .area data(ram, con, rel)
+ 01A9                   .dbfile F:\avr\状态机大作业\main.c
+ 01A9                   .blkb 2
+                        .area idata
+ 01A9 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01AB                   .dbfile F:\avr\状态机大作业\main.c
+ 01AB                   .blkb 2
+                        .area idata
+ 01AB 1800              .word 24
+                        .area data(ram, con, rel)
+ 01AD                   .dbfile F:\avr\状态机大作业\main.c
+ 01AD                   .blkb 2
+                        .area idata
+ 01AD 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 01AF                   .dbfile F:\avr\状态机大作业\main.c
+ 01AF                   .blkb 2
+                        .area idata
+ 01AF 0400              .word 4
+                        .area data(ram, con, rel)
+ 01B1                   .dbfile F:\avr\状态机大作业\main.c
+ 01B1                   .blkb 2
+                        .area idata
+ 01B1 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01B3                   .dbfile F:\avr\状态机大作业\main.c
+ 01B3                   .blkb 2
+                        .area idata
+ 01B3 0400              .word 4
+                        .area data(ram, con, rel)
+ 01B5                   .dbfile F:\avr\状态机大作业\main.c
+ 01B5                   .blkb 2
+                        .area idata
+ 01B5 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01B7                   .dbfile F:\avr\状态机大作业\main.c
+ 01B7                   .blkb 2
+                        .area idata
+ 01B7 1000              .word 16
+                        .area data(ram, con, rel)
+ 01B9                   .dbfile F:\avr\状态机大作业\main.c
+ 01B9                   .blkb 2
+                        .area idata
+ 01B9 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01BB                   .dbfile F:\avr\状态机大作业\main.c
+ 01BB                   .blkb 2
+                        .area idata
+ 01BB 0400              .word 4
+                        .area data(ram, con, rel)
+ 01BD                   .dbfile F:\avr\状态机大作业\main.c
+ 01BD                   .blkb 2
+                        .area idata
+ 01BD A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 01BF                   .dbfile F:\avr\状态机大作业\main.c
+ 01BF                   .blkb 2
+                        .area idata
+ 01BF 0400              .word 4
+                        .area data(ram, con, rel)
+ 01C1                   .dbfile F:\avr\状态机大作业\main.c
+ 01C1                   .blkb 2
+                        .area idata
+ 01C1 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01C3                   .dbfile F:\avr\状态机大作业\main.c
+ 01C3                   .blkb 2
+                        .area idata
+ 01C3 0400              .word 4
+                        .area data(ram, con, rel)
+ 01C5                   .dbfile F:\avr\状态机大作业\main.c
+ 01C5                   .blkb 2
+                        .area idata
+ 01C5 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01C7                   .dbfile F:\avr\状态机大作业\main.c
+ 01C7                   .blkb 2
+                        .area idata
+ 01C7 0400              .word 4
+                        .area data(ram, con, rel)
+ 01C9                   .dbfile F:\avr\状态机大作业\main.c
+ 01C9                   .blkb 2
+                        .area idata
+ 01C9 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 01CB                   .dbfile F:\avr\状态机大作业\main.c
+ 01CB                   .blkb 2
+                        .area idata
+ 01CB 2000              .word 32
+                        .area data(ram, con, rel)
+ 01CD                   .dbfile F:\avr\状态机大作业\main.c
+ 01CD                   .blkb 2
+                        .area idata
+ 01CD 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 01CF                   .dbfile F:\avr\状态机大作业\main.c
+ 01CF                   .blkb 2
+                        .area idata
+ 01CF 1800              .word 24
+                        .area data(ram, con, rel)
+ 01D1                   .dbfile F:\avr\状态机大作业\main.c
+ 01D1                   .blkb 2
+                        .area idata
+ 01D1 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 01D3                   .dbfile F:\avr\状态机大作业\main.c
+ 01D3                   .blkb 2
+                        .area idata
+ 01D3 0800              .word 8
+                        .area data(ram, con, rel)
+ 01D5                   .dbfile F:\avr\状态机大作业\main.c
+ 01D5                   .blkb 2
+                        .area idata
+ 01D5 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01D7                   .dbfile F:\avr\状态机大作业\main.c
+ 01D7                   .blkb 2
+                        .area idata
+ 01D7 1800              .word 24
+                        .area data(ram, con, rel)
+ 01D9                   .dbfile F:\avr\状态机大作业\main.c
+ 01D9                   .blkb 2
+                        .area idata
+ 01D9 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 01DB                   .dbfile F:\avr\状态机大作业\main.c
+ 01DB                   .blkb 2
+                        .area idata
+ 01DB 0400              .word 4
+                        .area data(ram, con, rel)
+ 01DD                   .dbfile F:\avr\状态机大作业\main.c
+ 01DD                   .blkb 2
+                        .area idata
+ 01DD 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01DF                   .dbfile F:\avr\状态机大作业\main.c
+ 01DF                   .blkb 2
+                        .area idata
+ 01DF 0400              .word 4
+                        .area data(ram, con, rel)
+ 01E1                   .dbfile F:\avr\状态机大作业\main.c
+ 01E1                   .blkb 2
+                        .area idata
+ 01E1 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01E3                   .dbfile F:\avr\状态机大作业\main.c
+ 01E3                   .blkb 2
+                        .area idata
+ 01E3 1000              .word 16
+                        .area data(ram, con, rel)
+ 01E5                   .dbfile F:\avr\状态机大作业\main.c
+ 01E5                   .blkb 2
+                        .area idata
+ 01E5 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01E7                   .dbfile F:\avr\状态机大作业\main.c
+ 01E7                   .blkb 2
+                        .area idata
+ 01E7 0400              .word 4
+                        .area data(ram, con, rel)
+ 01E9                   .dbfile F:\avr\状态机大作业\main.c
+ 01E9                   .blkb 2
+                        .area idata
+ 01E9 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 01EB                   .dbfile F:\avr\状态机大作业\main.c
+ 01EB                   .blkb 2
+                        .area idata
+ 01EB 0400              .word 4
+                        .area data(ram, con, rel)
+ 01ED                   .dbfile F:\avr\状态机大作业\main.c
+ 01ED                   .blkb 2
+                        .area idata
+ 01ED 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01EF                   .dbfile F:\avr\状态机大作业\main.c
+ 01EF                   .blkb 2
+                        .area idata
+ 01EF 0400              .word 4
+                        .area data(ram, con, rel)
+ 01F1                   .dbfile F:\avr\状态机大作业\main.c
+ 01F1                   .blkb 2
+                        .area idata
+ 01F1 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01F3                   .dbfile F:\avr\状态机大作业\main.c
+ 01F3                   .blkb 2
+                        .area idata
+ 01F3 0400              .word 4
+                        .area data(ram, con, rel)
+ 01F5                   .dbfile F:\avr\状态机大作业\main.c
+ 01F5                   .blkb 2
+                        .area idata
+ 01F5 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 01F7                   .dbfile F:\avr\状态机大作业\main.c
+ 01F7                   .blkb 2
+                        .area idata
+ 01F7 1800              .word 24
+                        .area data(ram, con, rel)
+ 01F9                   .dbfile F:\avr\状态机大作业\main.c
+ 01F9                   .blkb 2
+                        .area idata
+ 01F9 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 01FB                   .dbfile F:\avr\状态机大作业\main.c
+ 01FB                   .blkb 2
+                        .area idata
+ 01FB 0400              .word 4
+                        .area data(ram, con, rel)
+ 01FD                   .dbfile F:\avr\状态机大作业\main.c
+ 01FD                   .blkb 2
+                        .area idata
+ 01FD 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 01FF                   .dbfile F:\avr\状态机大作业\main.c
+ 01FF                   .blkb 2
+                        .area idata
+ 01FF 0400              .word 4
+                        .area data(ram, con, rel)
+ 0201                   .dbfile F:\avr\状态机大作业\main.c
+ 0201                   .blkb 2
+                        .area idata
+ 0201 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0203                   .dbfile F:\avr\状态机大作业\main.c
+ 0203                   .blkb 2
+                        .area idata
+ 0203 1800              .word 24
+                        .area data(ram, con, rel)
+ 0205                   .dbfile F:\avr\状态机大作业\main.c
+ 0205                   .blkb 2
+                        .area idata
+ 0205 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0207                   .dbfile F:\avr\状态机大作业\main.c
+ 0207                   .blkb 2
+                        .area idata
+ 0207 0400              .word 4
+                        .area data(ram, con, rel)
+ 0209                   .dbfile F:\avr\状态机大作业\main.c
+ 0209                   .blkb 2
+                        .area idata
+ 0209 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 020B                   .dbfile F:\avr\状态机大作业\main.c
+ 020B                   .blkb 2
+                        .area idata
+ 020B 0400              .word 4
+                        .area data(ram, con, rel)
+ 020D                   .dbfile F:\avr\状态机大作业\main.c
+ 020D                   .blkb 2
+                        .area idata
+ 020D 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 020F                   .dbfile F:\avr\状态机大作业\main.c
+ 020F                   .blkb 2
+                        .area idata
+ 020F 1800              .word 24
+                        .area data(ram, con, rel)
+ 0211                   .dbfile F:\avr\状态机大作业\main.c
+ 0211                   .blkb 2
+                        .area idata
+ 0211 65FB              .word 64357
+                        .area data(ram, con, rel)
+ 0213                   .dbfile F:\avr\状态机大作业\main.c
+ 0213                   .blkb 2
+                        .area idata
+ 0213 0400              .word 4
+                        .area data(ram, con, rel)
+ 0215                   .dbfile F:\avr\状态机大作业\main.c
+ 0215                   .blkb 2
+                        .area idata
+ 0215 37FB              .word 64311
+                        .area data(ram, con, rel)
+ 0217                   .dbfile F:\avr\状态机大作业\main.c
+ 0217                   .blkb 2
+                        .area idata
+ 0217 0400              .word 4
+                        .area data(ram, con, rel)
+ 0219                   .dbfile F:\avr\状态机大作业\main.c
+ 0219                   .blkb 2
+                        .area idata
+ 0219 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 021B                   .dbfile F:\avr\状态机大作业\main.c
+ 021B                   .blkb 2
+                        .area idata
+ 021B 1800              .word 24
+                        .area data(ram, con, rel)
+ 021D                   .dbfile F:\avr\状态机大作业\main.c
+ 021D                   .blkb 2
+                        .area idata
+ 021D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 021F                   .dbfile F:\avr\状态机大作业\main.c
+ 021F                   .blkb 2
+                        .area idata
+ 021F 0800              .word 8
+                        .area data(ram, con, rel)
+ 0221                   .dbfile F:\avr\状态机大作业\main.c
+ 0221                   .blkb 2
+                        .area idata
+ 0221 E6FA              .word 64230
+                        .area data(ram, con, rel)
+ 0223                   .dbfile F:\avr\状态机大作业\main.c
+ 0223                   .blkb 2
+                        .area idata
+ 0223 1800              .word 24
+                        .area data(ram, con, rel)
+ 0225                   .dbfile F:\avr\状态机大作业\main.c
+ 0225                   .blkb 2
+                        .area idata
+ 0225 03FB              .word 64259
+                        .area data(ram, con, rel)
+ 0227                   .dbfile F:\avr\状态机大作业\main.c
+ 0227                   .blkb 2
+                        .area idata
+ 0227 0800              .word 8
+                        .area data(ram, con, rel)
+ 0229                   .dbfile F:\avr\状态机大作业\main.c
+ 0229                   .blkb 2
+                        .area idata
+ 0229 A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 022B                   .dbfile F:\avr\状态机大作业\main.c
+ 022B                   .blkb 2
+                        .area idata
+ 022B 2000              .word 32
+                        .area data(ram, con, rel)
+ 022D                   .dbfile F:\avr\状态机大作业\main.c
+ 022D                   .blkb 2
+                        .area idata
+ 022D A8FA              .word 64168
+                        .area data(ram, con, rel)
+ 022F                   .dbfile F:\avr\状态机大作业\main.c
+ 022F                   .blkb 2
+                        .area idata
+ 022F 2000              .word 32
+                        .area data(ram, con, rel)
+ 0231                   .dbfile F:\avr\状态机大作业\main.c
+ 0231                   .blkb 2
+                        .area idata
+ 0231 FF00              .word 255
+                        .area data(ram, con, rel)
+ 0233                   .dbfile F:\avr\状态机大作业\main.c
+                        .area text(rom, con, rel)
+ 01EE                   .dbfile F:\avr\状态机大作业\main.c
+ 01EE                   .dbfunc e Bell _Bell fV
+ 01EE           ;           song -> y+0
+                        .even
+ 01EE           _Bell::
+ 01EE EF97              sbiw R28,63
+ 01F0 EF97              sbiw R28,63
+ 01F2 EF97              sbiw R28,63
+ 01F4 EF97              sbiw R28,63
+ 01F6 EF97              sbiw R28,63
+ 01F8 EF97              sbiw R28,63
+ 01FA EF97              sbiw R28,63
+ 01FC EF97              sbiw R28,63
+ 01FE E697              sbiw R28,54  ; offset = 558
+ 0200                   .dbline -1
+ 0200                   .dbline 125
+ 0200           ;       
+ 0200           ; }
+ 0200           ; /*蜂鸣器改变调子需要*/
+ 0200           ; 
+ 0200           ; 
+ 0200           ; /*蜂鸣器*/
+ 0200           ; void Bell()
+ 0200           ; {
+ 0200                   .dbline 128
+ 0200           ; 
+ 0200           ;       unsigned int song[]=
+ 0200           ;       {
+ 0200 80E0              ldi R24,<L32
+ 0202 90E0              ldi R25,>L32
+ 0204 FE01              movw R30,R28
+ 0206 0EE2              ldi R16,558
+ 0208 12E0              ldi R17,2
+ 020A FA93              st -y,R31
+ 020C EA93              st -y,R30
+ 020E 9A93              st -y,R25
+ 0210 8A93              st -y,R24
+ 0212 0E940000          xcall asgnblk
+ 0216                   .dbline 146
+ 0216           ;               N6,12,N7,4,H1,8,H2,4,H3,4,/**/H2,32,/**/N7,12,N6,4,N5,8,N3,4,N5,4,/**/
+ 0216           ;               N6,32,/**/H1,12,N6,4,N6,8,H3,8,/**/H2,32,/**/N5,22,N6,4,N7,8,H1,4,N7,4,/**/
+ 0216           ;               N6,32, /**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/H1,16,H1,4,N6,4,H1,4,H2,4,/**/
+ 0216           ;               N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 0216           ;               N5,4,N6,4,N7,16,N7,4,N5,4,/**/N6,32,/**/
+ 0216           ;               N6,12,N7,4,H1,8,H2,4,H3,4,/**/H2,32,/**/N7,12,N6,4,N5,8,N3,4,N5,4,/**/
+ 0216           ;               N6,32,/**/H1,12,N6,4,N6,8,H3,8,/**/H2,32,/**/N5,12,N6,4,N7,8,H1,4,N7,4,/**/
+ 0216           ;               N6,32,/**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/H1,16,H1,4,N6,4,H1,4,H2,4,/**/
+ 0216           ;               N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 0216           ;               N5,4,N6,4,N7,16,N6,4,N5,4,/**/N6,32,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 0216           ;               H1,24,N7,4,N6,4,/**/N7,24,H1,4,H2,4,/**/H3,24,H3,4,N6,4,/**/H2,24,H3,4,H2,4, /**/
+ 0216           ;               H1,16,H1,4,N6,4,H1,4,H2,4,/**/N7,32,/**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/
+ 0216           ;               H1,16,H1,4,N6,4,H1,4,H2,4,/**/N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/
+ 0216           ;               H2,24,H3,4,H2,4,/**/H1,24,N6,8,/**/N7,24,H1,8,/**/N6,32,/**/N6,32,/**/
+ 0216           ;               0xFF //音乐结尾符
+ 0216           ;       };
+ 0216           ;                                               
+ 0216           ;       Bell_Init();                    //初始化
+ 0216 0E940000          xcall _Bell_Init
+ 021A 02C0              xjmp L34
+ 021C           L33:
+ 021C                   .dbline 148
+ 021C           ;       while(1)
+ 021C           ;       {
+ 021C                   .dbline 149
+ 021C           ;               Music(song);
+ 021C 8E01              movw R16,R28
+ 021E 0BD0              xcall _Music
+ 0220                   .dbline 150
+ 0220           ;       }
+ 0220           L34:
+ 0220                   .dbline 147
+ 0220 FDCF              xjmp L33
+ 0222           X9:
+ 0222                   .dbline -2
+ 0222           L31:
+ 0222                   .dbline 0 ; func end
+ 0222 EF96              adiw R28,63
+ 0224 EF96              adiw R28,63
+ 0226 EF96              adiw R28,63
+ 0228 EF96              adiw R28,63
+ 022A EF96              adiw R28,63
+ 022C EF96              adiw R28,63
+ 022E EF96              adiw R28,63
+ 0230 EF96              adiw R28,63
+ 0232 E696              adiw R28,54  ; offset = 558
+ 0234 0895              ret
+ 0236                   .dbsym l song 0 A[558:279]i
+ 0236                   .dbend
+ 0236                   .dbfunc e Music _Music fV
+ 0236           ;         pMusic -> R20,R21
+                        .even
+ 0236           _Music::
+ 0236 4A93              st -y,R20
+ 0238 5A93              st -y,R21
+ 023A A801              movw R20,R16
+ 023C                   .dbline -1
+ 023C                   .dbline 155
+ 023C           ; }
+ 023C           ; 
+ 023C           ; /*播放音乐*/
+ 023C           ; void Music(unsigned int *pMusic) 
+ 023C           ; { 
+ 023C 21C0              xjmp L38
+ 023E           L37:
+ 023E                   .dbline 158
+ 023E           ;       
+ 023E           ;       while(*pMusic!=0xFF)                    //0xFF为音乐结尾符 
+ 023E           ;     { 
+ 023E                   .dbline 160
+ 023E           ;               
+ 023E           ;               TIMSK=0x04;                             //Timer1溢出中断使能      
+ 023E 84E0              ldi R24,4
+ 0240 89BF              out 0x39,R24
+ 0242                   .dbline 161
+ 0242           ;               beat=*pMusic;             //取出音符
+ 0242 FA01              movw R30,R20
+ 0244 2080              ldd R2,z+0
+ 0246 3180              ldd R3,z+1
+ 0248 30920B00          sts _beat+1,R3
+ 024C 20920A00          sts _beat,R2
+ 0250                   .dbline 162
+ 0250           ;               TCNT1H=beat/256;                         
+ 0250 232C              mov R2,R3
+ 0252 3324              clr R3
+ 0254 2DBC              out 0x2d,R2
+ 0256                   .dbline 163
+ 0256           ;               TCNT1L=beat%256;          //将音符对应的计数值写入计时器,开始发声
+ 0256 80910A00          lds R24,_beat
+ 025A 90910B00          lds R25,_beat+1
+ 025E 9070              andi R25,0
+ 0260 8CBD              out 0x2c,R24
+ 0262                   .dbline 165
+ 0262           ;                 
+ 0262           ;               pMusic++;                                       //乐谱音符指针+1 ,取拍数
+ 0262 4E5F              subi R20,254  ; offset = 2
+ 0264 5F4F              sbci R21,255
+ 0266                   .dbline 166
+ 0266           ;               delay_ms((*pMusic)*52);   //节拍延时，可以通过这里调整音乐播放速度
+ 0266 FA01              movw R30,R20
+ 0268 2081              ldd R18,z+0
+ 026A 3181              ldd R19,z+1
+ 026C 04E3              ldi R16,52
+ 026E 10E0              ldi R17,0
+ 0270 0E940000          xcall empy16s
+ 0274 0E940000          xcall _delay_ms
+ 0278                   .dbline 168
+ 0278           ; 
+ 0278           ;               TIMSK=0x00;                             //当前音符结束,屏蔽Timer1溢出中断
+ 0278 2224              clr R2
+ 027A 29BE              out 0x39,R2
+ 027C                   .dbline 170
+ 027C           ;                 
+ 027C           ;               pMusic++;
+ 027C 4E5F              subi R20,254  ; offset = 2
+ 027E 5F4F              sbci R21,255
+ 0280                   .dbline 172
+ 0280           ;                                                       //乐谱音符指针+1，指向下一音符
+ 0280           ;     }        
+ 0280           L38:
+ 0280                   .dbline 157
+ 0280 FA01              movw R30,R20
+ 0282 8081              ldd R24,z+0
+ 0284 9181              ldd R25,z+1
+ 0286 8F3F              cpi R24,255
+ 0288 E0E0              ldi R30,0
+ 028A 9E07              cpc R25,R30
+ 028C C1F6              brne L37
+ 028E           X10:
+ 028E                   .dbline -2
+ 028E           L36:
+ 028E                   .dbline 0 ; func end
+ 028E 5991              ld R21,y+
+ 0290 4991              ld R20,y+
+ 0292 0895              ret
+ 0294                   .dbsym r pMusic 20 pi
+ 0294                   .dbend
+ 0294                   .dbfunc e LED _LED fV
+ 0294           ;          right -> R22
+ 0294           ;           left -> R20
+                        .even
+ 0294           _LED::
+ 0294 4A93              st -y,R20
+ 0296 6A93              st -y,R22
+ 0298 2297              sbiw R28,2
+ 029A                   .dbline -1
+ 029A                   .dbline 179
+ 029A           ; }
+ 029A           ; /*播放音乐*/
+ 029A           ; 
+ 029A           ; 
+ 029A           ; /*led*/
+ 029A           ; void LED()                                                                                                                                                    
+ 029A           ; {
+ 029A                   .dbline 180
+ 029A           ;       uchar left=0x01;
+ 029A 41E0              ldi R20,1
+ 029C                   .dbline 181
+ 029C           ;       uchar right=0x80;
+ 029C 60E8              ldi R22,128
+ 029E                   .dbline 182
+ 029E           ;       LCD_clear();
+ 029E 0E940000          xcall _LCD_clear
+ 02A2                   .dbline 183
+ 02A2           ;       LCD_write_str(0,0,"led..");
+ 02A2 80E0              ldi R24,<L41
+ 02A4 90E0              ldi R25,>L41
+ 02A6 9983              std y+1,R25
+ 02A8 8883              std y+0,R24
+ 02AA 2227              clr R18
+ 02AC 0027              clr R16
+ 02AE 0E940000          xcall _LCD_write_str
+ 02B2                   .dbline 184
+ 02B2           ;       LCD_write_str(0,2,"1(2):control");
+ 02B2 80E0              ldi R24,<L42
+ 02B4 90E0              ldi R25,>L42
+ 02B6 9983              std y+1,R25
+ 02B8 8883              std y+0,R24
+ 02BA 22E0              ldi R18,2
+ 02BC 0027              clr R16
+ 02BE 0E940000          xcall _LCD_write_str
+ 02C2 2EC0              xjmp L44
+ 02C4           L43:
+ 02C4                   .dbline 187
+ 02C4           ; 
+ 02C4           ;       while(1)
+ 02C4           ;       {
+ 02C4                   .dbline 188
+ 02C4           ;               Driver_595(left,right);
+ 02C4 262F              mov R18,R22
+ 02C6 3327              clr R19
+ 02C8 042F              mov R16,R20
+ 02CA 1127              clr R17
+ 02CC 0E940000          xcall _Driver_595
+ 02D0                   .dbline 189
+ 02D0           ;               if(select=='2')
+ 02D0 80910100          lds R24,_select
+ 02D4 8233              cpi R24,50
+ 02D6 59F4              brne L46
+ 02D8           X11:
+ 02D8                   .dbline 190
+ 02D8           ;               {
+ 02D8                   .dbline 191
+ 02D8           ;                       LCD_write_str(6,0,"MODE:2");
+ 02D8 80E0              ldi R24,<L48
+ 02DA 90E0              ldi R25,>L48
+ 02DC 9983              std y+1,R25
+ 02DE 8883              std y+0,R24
+ 02E0 2227              clr R18
+ 02E2 06E0              ldi R16,6
+ 02E4 0E940000          xcall _LCD_write_str
+ 02E8                   .dbline 192
+ 02E8           ;                       left<<=1;
+ 02E8 440F              lsl R20
+ 02EA                   .dbline 193
+ 02EA           ;                       right>>=1;
+ 02EA 6695              lsr R22
+ 02EC                   .dbline 194
+ 02EC           ;               }
+ 02EC 0AC0              xjmp L47
+ 02EE           L46:
+ 02EE                   .dbline 197
+ 02EE           ;               
+ 02EE           ;               else
+ 02EE           ;               {
+ 02EE                   .dbline 198
+ 02EE           ;                       right<<=1;
+ 02EE 660F              lsl R22
+ 02F0                   .dbline 199
+ 02F0           ;                       left>>=1;
+ 02F0 4695              lsr R20
+ 02F2                   .dbline 200
+ 02F2           ;                       LCD_write_str(6,0,"MODE:1");
+ 02F2 80E0              ldi R24,<L49
+ 02F4 90E0              ldi R25,>L49
+ 02F6 9983              std y+1,R25
+ 02F8 8883              std y+0,R24
+ 02FA 2227              clr R18
+ 02FC 06E0              ldi R16,6
+ 02FE 0E940000          xcall _LCD_write_str
+ 0302                   .dbline 201
+ 0302           ;               }
+ 0302           L47:
+ 0302                   .dbline 203
+ 0302           ;               
+ 0302           ;               if(left==0x00)
+ 0302 4423              tst R20
+ 0304 49F4              brne L50
+ 0306           X12:
+ 0306                   .dbline 204
+ 0306           ;               {
+ 0306                   .dbline 205
+ 0306           ;                       if(select=='2') 
+ 0306 80910100          lds R24,_select
+ 030A 8233              cpi R24,50
+ 030C 19F4              brne L52
+ 030E           X13:
+ 030E                   .dbline 206
+ 030E           ;                       {
+ 030E                   .dbline 207
+ 030E           ;                               left=0x01;
+ 030E 41E0              ldi R20,1
+ 0310                   .dbline 208
+ 0310           ;                       right=0x80;
+ 0310 60E8              ldi R22,128
+ 0312                   .dbline 209
+ 0312           ;                       }
+ 0312 02C0              xjmp L53
+ 0314           L52:
+ 0314                   .dbline 212
+ 0314           ;                       
+ 0314           ;                       else
+ 0314           ;                       {
+ 0314                   .dbline 213
+ 0314           ;                               right=0x01;
+ 0314 61E0              ldi R22,1
+ 0316                   .dbline 214
+ 0316           ;                       left=0x80;
+ 0316 40E8              ldi R20,128
+ 0318                   .dbline 215
+ 0318           ;                       }
+ 0318           L53:
+ 0318                   .dbline 216
+ 0318           ;               }
+ 0318           L50:
+ 0318                   .dbline 218
+ 0318           ;               
+ 0318           ;               delay_ms(100);
+ 0318 04E6              ldi R16,100
+ 031A 10E0              ldi R17,0
+ 031C 0E940000          xcall _delay_ms
+ 0320                   .dbline 219
+ 0320           ;       }
+ 0320           L44:
+ 0320                   .dbline 186
+ 0320 D1CF              xjmp L43
+ 0322           X14:
+ 0322                   .dbline -2
+ 0322           L40:
+ 0322                   .dbline 0 ; func end
+ 0322 2296              adiw R28,2
+ 0324 6991              ld R22,y+
+ 0326 4991              ld R20,y+
+ 0328 0895              ret
+ 032A                   .dbsym r right 22 c
+ 032A                   .dbsym r left 20 c
+ 032A                   .dbend
+ 032A                   .dbfunc e Motor _Motor fV
+ 032A           ;         Lspeed -> R22,R23
+ 032A           ;         Rspeed -> R20,R21
+                        .even
+ 032A           _Motor::
+ 032A 0E940000          xcall push_xgsetF000
+ 032E 2297              sbiw R28,2
+ 0330                   .dbline -1
+ 0330                   .dbline 227
+ 0330           ; }     
+ 0330           ; /*led*/
+ 0330           ; 
+ 0330           ; 
+ 0330           ; 
+ 0330           ; /*电机*/
+ 0330           ; void Motor()
+ 0330           ; {
+ 0330                   .dbline 228
+ 0330           ;       uint Rspeed=500;
+ 0330 44EF              ldi R20,500
+ 0332 51E0              ldi R21,1
+ 0334                   .dbline 229
+ 0334           ;       uint Lspeed=500;
+ 0334 64EF              ldi R22,500
+ 0336 71E0              ldi R23,1
+ 0338                   .dbline 230
+ 0338           ;       LCD_clear();
+ 0338 0E940000          xcall _LCD_clear
+ 033C                   .dbline 231
+ 033C           ;       LCD_write_str(0,0,"L:500 R:500");
+ 033C 80E0              ldi R24,<L55
+ 033E 90E0              ldi R25,>L55
+ 0340 9983              std y+1,R25
+ 0342 8883              std y+0,R24
+ 0344 2227              clr R18
+ 0346 0027              clr R16
+ 0348 0E940000          xcall _LCD_write_str
+ 034C                   .dbline 232
+ 034C           ;       LCD_write_str(0,1,"1(2):L 4(5):R");
+ 034C 80E0              ldi R24,<L56
+ 034E 90E0              ldi R25,>L56
+ 0350 9983              std y+1,R25
+ 0352 8883              std y+0,R24
+ 0354 21E0              ldi R18,1
+ 0356 0027              clr R16
+ 0358 0E940000          xcall _LCD_write_str
+ 035C                   .dbline 233
+ 035C           ;       Motor_init();
+ 035C 0E940000          xcall _Motor_init
+ 0360 3CC0              xjmp L58
+ 0362           L57:
+ 0362                   .dbline 235
+ 0362           ;       while(1)
+ 0362           ;       {
+ 0362                   .dbline 236
+ 0362           ;               if(select=='1') 
+ 0362 80910100          lds R24,_select
+ 0366 8133              cpi R24,49
+ 0368 51F4              brne L60
+ 036A           X15:
+ 036A                   .dbline 237
+ 036A           ;               {
+ 036A                   .dbline 238
+ 036A           ;                       Lspeed=100;
+ 036A 64E6              ldi R22,100
+ 036C 70E0              ldi R23,0
+ 036E                   .dbline 239
+ 036E           ;                       LCD_write_str(0,0,"L:100");
+ 036E 80E0              ldi R24,<L62
+ 0370 90E0              ldi R25,>L62
+ 0372 9983              std y+1,R25
+ 0374 8883              std y+0,R24
+ 0376 2227              clr R18
+ 0378 0027              clr R16
+ 037A 0E940000          xcall _LCD_write_str
+ 037E                   .dbline 240
+ 037E           ;               }
+ 037E           L60:
+ 037E                   .dbline 241
+ 037E           ;               if(select=='2') 
+ 037E 80910100          lds R24,_select
+ 0382 8233              cpi R24,50
+ 0384 51F4              brne L63
+ 0386           X16:
+ 0386                   .dbline 242
+ 0386           ;               {
+ 0386                   .dbline 243
+ 0386           ;                       Lspeed=300;
+ 0386 6CE2              ldi R22,300
+ 0388 71E0              ldi R23,1
+ 038A                   .dbline 244
+ 038A           ;                       LCD_write_str(0,0,"L:300");
+ 038A 80E0              ldi R24,<L65
+ 038C 90E0              ldi R25,>L65
+ 038E 9983              std y+1,R25
+ 0390 8883              std y+0,R24
+ 0392 2227              clr R18
+ 0394 0027              clr R16
+ 0396 0E940000          xcall _LCD_write_str
+ 039A                   .dbline 245
+ 039A           ;               }
+ 039A           L63:
+ 039A                   .dbline 246
+ 039A           ;               if(select=='4') 
+ 039A 80910100          lds R24,_select
+ 039E 8433              cpi R24,52
+ 03A0 51F4              brne L66
+ 03A2           X17:
+ 03A2                   .dbline 247
+ 03A2           ;               {
+ 03A2                   .dbline 248
+ 03A2           ;                       Rspeed=100;
+ 03A2 44E6              ldi R20,100
+ 03A4 50E0              ldi R21,0
+ 03A6                   .dbline 249
+ 03A6           ;                       LCD_write_str(6,0,"R:100");
+ 03A6 80E0              ldi R24,<L68
+ 03A8 90E0              ldi R25,>L68
+ 03AA 9983              std y+1,R25
+ 03AC 8883              std y+0,R24
+ 03AE 2227              clr R18
+ 03B0 06E0              ldi R16,6
+ 03B2 0E940000          xcall _LCD_write_str
+ 03B6                   .dbline 250
+ 03B6           ;               }
+ 03B6           L66:
+ 03B6                   .dbline 251
+ 03B6           ;               if(select=='5') 
+ 03B6 80910100          lds R24,_select
+ 03BA 8533              cpi R24,53
+ 03BC 51F4              brne L69
+ 03BE           X18:
+ 03BE                   .dbline 252
+ 03BE           ;               {
+ 03BE                   .dbline 253
+ 03BE           ;                       Rspeed=300;
+ 03BE 4CE2              ldi R20,300
+ 03C0 51E0              ldi R21,1
+ 03C2                   .dbline 254
+ 03C2           ;                       LCD_write_str(6,0,"R:300");
+ 03C2 80E0              ldi R24,<L71
+ 03C4 90E0              ldi R25,>L71
+ 03C6 9983              std y+1,R25
+ 03C8 8883              std y+0,R24
+ 03CA 2227              clr R18
+ 03CC 06E0              ldi R16,6
+ 03CE 0E940000          xcall _LCD_write_str
+ 03D2                   .dbline 255
+ 03D2           ;               }
+ 03D2           L69:
+ 03D2                   .dbline 256
+ 03D2           ;               motor(Lspeed,Rspeed);
+ 03D2 9A01              movw R18,R20
+ 03D4 8B01              movw R16,R22
+ 03D6 0E940000          xcall _motor
+ 03DA                   .dbline 257
+ 03DA           ;       }
+ 03DA           L58:
+ 03DA                   .dbline 234
+ 03DA C3CF              xjmp L57
+ 03DC           X19:
+ 03DC                   .dbline -2
+ 03DC           L54:
+ 03DC                   .dbline 0 ; func end
+ 03DC 2296              adiw R28,2
+ 03DE 0C940000          xjmp pop_xgsetF000
+ 03E2                   .dbsym r Lspeed 22 i
+ 03E2                   .dbsym r Rspeed 20 i
+ 03E2                   .dbend
+ 03E2                   .dbfunc e Confirm _Confirm fV
+ 03E2           ;         Isture -> R20
+ 03E2           ;           ture -> R22
+ 03E2           ;              i -> R10
+                        .even
+ 03E2           _Confirm::
+ 03E2 0E940000          xcall push_xgsetF00C
+ 03E6 2297              sbiw R28,2
+ 03E8                   .dbline -1
+ 03E8                   .dbline 265
+ 03E8           ; 
+ 03E8           ; }
+ 03E8           ; /*电机*/
+ 03E8           ; 
+ 03E8           ; 
+ 03E8           ; /*校验密码*/
+ 03E8           ; void Confirm()
+ 03E8           ; {
+ 03E8                   .dbline 267
+ 03E8           ;       uchar i;                                //用于计次数
+ 03E8           ;       uchar Isture=1;
+ 03E8 41E0              ldi R20,1
+ 03EA                   .dbline 268
+ 03EA           ;       uchar ture=0;
+ 03EA 6627              clr R22
+ 03EC                   .dbline 269
+ 03EC           ;       Read_password();                //首先读取储存的密码
+ 03EC 96D0              xcall _Read_password
+ 03EE 4DC0              xjmp L74
+ 03F0           L73:
+ 03F0                   .dbline 271
+ 03F0           ;       while(1)
+ 03F0           ;       {
+ 03F0                   .dbline 273
+ 03F0           ;               
+ 03F0           ;               LCD_clear();
+ 03F0 0E940000          xcall _LCD_clear
+ 03F4                   .dbline 274
+ 03F4           ;               LCD_write_str(0,0,"password:");
+ 03F4 80E0              ldi R24,<L76
+ 03F6 90E0              ldi R25,>L76
+ 03F8 9983              std y+1,R25
+ 03FA 8883              std y+0,R24
+ 03FC 2227              clr R18
+ 03FE 0027              clr R16
+ 0400 0E940000          xcall _LCD_write_str
+ 0404                   .dbline 276
+ 0404           ;               
+ 0404           ;               if(Isture==0) LCD_write_str(9,0,"Wrong!");
+ 0404 4423              tst R20
+ 0406 41F4              brne L77
+ 0408           X20:
+ 0408                   .dbline 276
+ 0408 80E0              ldi R24,<L79
+ 040A 90E0              ldi R25,>L79
+ 040C 9983              std y+1,R25
+ 040E 8883              std y+0,R24
+ 0410 2227              clr R18
+ 0412 09E0              ldi R16,9
+ 0414 0E940000          xcall _LCD_write_str
+ 0418           L77:
+ 0418                   .dbline 278
+ 0418           ;       
+ 0418           ;               ture=0;
+ 0418 6627              clr R22
+ 041A                   .dbline 280
+ 041A           ;               
+ 041A           ;               for(i=0;i<4;i++)                        //输入密码
+ 041A AA24              clr R10
+ 041C 18C0              xjmp L83
+ 041E           L80:
+ 041E                   .dbline 281
+ 041E           ;               {       
+ 041E                   .dbline 282
+ 041E           ;                       delay_ms(100);
+ 041E 04E6              ldi R16,100
+ 0420 10E0              ldi R17,0
+ 0422 0E940000          xcall _delay_ms
+ 0426           L84:
+ 0426                   .dbline 283
+ 0426           ;                       while(!IsPress);
+ 0426           L85:
+ 0426                   .dbline 283
+ 0426 20900200          lds R2,_IsPress
+ 042A 2220              tst R2
+ 042C E1F3              breq L84
+ 042E           X21:
+ 042E                   .dbline 284
+ 042E           ;                       Try_password[i]=select;
+ 042E 80E0              ldi R24,<_Try_password
+ 0430 90E0              ldi R25,>_Try_password
+ 0432 EA2D              mov R30,R10
+ 0434 FF27              clr R31
+ 0436 E80F              add R30,R24
+ 0438 F91F              adc R31,R25
+ 043A 20900100          lds R2,_select
+ 043E 2082              std z+0,R2
+ 0440                   .dbline 285
+ 0440           ;                       LCD_write_char(i,1,'*');
+ 0440 8AE2              ldi R24,42
+ 0442 8883              std y+0,R24
+ 0444 21E0              ldi R18,1
+ 0446 0A2D              mov R16,R10
+ 0448 0E940000          xcall _LCD_write_char
+ 044C                   .dbline 286
+ 044C           ;               }
+ 044C           L81:
+ 044C                   .dbline 280
+ 044C A394              inc R10
+ 044E           L83:
+ 044E                   .dbline 280
+ 044E 8A2D              mov R24,R10
+ 0450 8430              cpi R24,4
+ 0452 28F3              brlo L80
+ 0454           X22:
+ 0454                   .dbline 288
+ 0454           ; 
+ 0454           ;               for(i=0;i<4;i++)                                                                        //与储存的对比
+ 0454 AA24              clr R10
+ 0456 12C0              xjmp L90
+ 0458           L87:
+ 0458                   .dbline 289
+ 0458           ;               {
+ 0458                   .dbline 290
+ 0458           ;                       if(Right_password[i]==Try_password[i]) ture++;
+ 0458 80E0              ldi R24,<_Try_password
+ 045A 90E0              ldi R25,>_Try_password
+ 045C EA2D              mov R30,R10
+ 045E FF27              clr R31
+ 0460 E80F              add R30,R24
+ 0462 F91F              adc R31,R25
+ 0464 2080              ldd R2,z+0
+ 0466 80E0              ldi R24,<_Right_password
+ 0468 90E0              ldi R25,>_Right_password
+ 046A EA2D              mov R30,R10
+ 046C FF27              clr R31
+ 046E E80F              add R30,R24
+ 0470 F91F              adc R31,R25
+ 0472 3080              ldd R3,z+0
+ 0474 3214              cp R3,R2
+ 0476 09F4              brne L91
+ 0478           X23:
+ 0478                   .dbline 290
+ 0478 6395              inc R22
+ 047A           L91:
+ 047A                   .dbline 291
+ 047A           ;               }
+ 047A           L88:
+ 047A                   .dbline 288
+ 047A A394              inc R10
+ 047C           L90:
+ 047C                   .dbline 288
+ 047C 8A2D              mov R24,R10
+ 047E 8430              cpi R24,4
+ 0480 58F3              brlo L87
+ 0482           X24:
+ 0482                   .dbline 293
+ 0482           ; 
+ 0482           ;               if(ture==4)                                     //如果密码正确                          
+ 0482 6430              cpi R22,4
+ 0484 09F4              brne L93
+ 0486           X25:
+ 0486                   .dbline 294
+ 0486           ;               {
+ 0486                   .dbline 295
+ 0486           ;                       break;
+ 0486 02C0              xjmp L75
+ 0488           L93:
+ 0488                   .dbline 298
+ 0488           ;                       select='N';
+ 0488           ;               }
+ 0488           ;               else Isture=0;
+ 0488 4427              clr R20
+ 048A           L94:
+ 048A                   .dbline 299
+ 048A           ;       }       
+ 048A           L74:
+ 048A                   .dbline 270
+ 048A B2CF              xjmp L73
+ 048C           L75:
+ 048C                   .dbline -2
+ 048C           L72:
+ 048C                   .dbline 0 ; func end
+ 048C 2296              adiw R28,2
+ 048E 0C940000          xjmp pop_xgsetF00C
+ 0492                   .dbsym r Isture 20 c
+ 0492                   .dbsym r ture 22 c
+ 0492                   .dbsym r i 10 c
+ 0492                   .dbend
+ 0492                   .dbfunc e Write_password _Write_password fV
+ 0492           ;           temp -> y+2
+ 0492           ;              i -> R20,R21
+                        .even
+ 0492           _Write_password::
+ 0492 4A93              st -y,R20
+ 0494 5A93              st -y,R21
+ 0496 2697              sbiw R28,6
+ 0498                   .dbline -1
+ 0498                   .dbline 307
+ 0498           ;               
+ 0498           ; }
+ 0498           ; /*校验密码*/
+ 0498           ; 
+ 0498           ; 
+ 0498           ; /*向eeprom写入密码*/
+ 0498           ; void Write_password()
+ 0498           ; {
+ 0498                   .dbline 308
+ 0498           ;       uint i=0;
+ 0498                   .dbline 311
+ 0498           ;       uchar temp[4];
+ 0498           ;       
+ 0498           ;       LCD_clear();
+ 0498 0E940000          xcall _LCD_clear
+ 049C                   .dbline 312
+ 049C           ;       LCD_write_str(0,0,"please enter");
+ 049C 80E0              ldi R24,<L96
+ 049E 90E0              ldi R25,>L96
+ 04A0 9983              std y+1,R25
+ 04A2 8883              std y+0,R24
+ 04A4 2227              clr R18
+ 04A6 0027              clr R16
+ 04A8 0E940000          xcall _LCD_write_str
+ 04AC                   .dbline 313
+ 04AC           ;       LCD_write_str(0,1,"the password");
+ 04AC 80E0              ldi R24,<L97
+ 04AE 90E0              ldi R25,>L97
+ 04B0 9983              std y+1,R25
+ 04B2 8883              std y+0,R24
+ 04B4 21E0              ldi R18,1
+ 04B6 0027              clr R16
+ 04B8 0E940000          xcall _LCD_write_str
+ 04BC                   .dbline 314
+ 04BC           ;       for(i=0;i<4;i++)
+ 04BC 4427              clr R20
+ 04BE 5527              clr R21
+ 04C0 12C0              xjmp L101
+ 04C2           L98:
+ 04C2                   .dbline 315
+ 04C2           ;       {       
+ 04C2                   .dbline 316
+ 04C2           ;               delay_ms(100);
+ 04C2 04E6              ldi R16,100
+ 04C4 10E0              ldi R17,0
+ 04C6 0E940000          xcall _delay_ms
+ 04CA           L102:
+ 04CA                   .dbline 317
+ 04CA           ;               while(!IsPress);
+ 04CA           L103:
+ 04CA                   .dbline 317
+ 04CA 20900200          lds R2,_IsPress
+ 04CE 2220              tst R2
+ 04D0 E1F3              breq L102
+ 04D2           X26:
+ 04D2                   .dbline 318
+ 04D2           ;               temp[i]=select;
+ 04D2 CE01              movw R24,R28
+ 04D4 0296              adiw R24,2
+ 04D6 FA01              movw R30,R20
+ 04D8 E80F              add R30,R24
+ 04DA F91F              adc R31,R25
+ 04DC 20900100          lds R2,_select
+ 04E0 2082              std z+0,R2
+ 04E2                   .dbline 319
+ 04E2           ;       }
+ 04E2           L99:
+ 04E2                   .dbline 314
+ 04E2 4F5F              subi R20,255  ; offset = 1
+ 04E4 5F4F              sbci R21,255
+ 04E6           L101:
+ 04E6                   .dbline 314
+ 04E6 4430              cpi R20,4
+ 04E8 E0E0              ldi R30,0
+ 04EA 5E07              cpc R21,R30
+ 04EC 50F3              brlo L98
+ 04EE           X27:
+ 04EE                   .dbline 320
+ 04EE           ;       eeprom_write_string(0,temp);
+ 04EE 9E01              movw R18,R28
+ 04F0 2E5F              subi R18,254  ; offset = 2
+ 04F2 3F4F              sbci R19,255
+ 04F4 0027              clr R16
+ 04F6 0E940000          xcall _eeprom_write_string
+ 04FA                   .dbline 321
+ 04FA           ;       Driver_595(0x00,0x00);
+ 04FA 2227              clr R18
+ 04FC 3327              clr R19
+ 04FE 0027              clr R16
+ 0500 1127              clr R17
+ 0502 0E940000          xcall _Driver_595
+ 0506                   .dbline 322
+ 0506           ;       eeprom_write(100,1);
+ 0506 21E0              ldi R18,1
+ 0508 04E6              ldi R16,100
+ 050A 0E940000          xcall _eeprom_write
+ 050E                   .dbline 323
+ 050E           ;       reset();
+ 050E 0E940000          xcall _reset
+ 0512                   .dbline -2
+ 0512           L95:
+ 0512                   .dbline 0 ; func end
+ 0512 2696              adiw R28,6
+ 0514 5991              ld R21,y+
+ 0516 4991              ld R20,y+
+ 0518 0895              ret
+ 051A                   .dbsym l temp 2 A[4:4]c
+ 051A                   .dbsym r i 20 i
+ 051A                   .dbend
+ 051A                   .dbfunc e Read_password _Read_password fV
+ 051A           ;              i -> R20
+                        .even
+ 051A           _Read_password::
+ 051A 4A93              st -y,R20
+ 051C                   .dbline -1
+ 051C                   .dbline 331
+ 051C           ; 
+ 051C           ; }
+ 051C           ; /*向eeprom写入密码*/
+ 051C           ; 
+ 051C           ; 
+ 051C           ; /*读取eeprom中储存的密码*/
+ 051C           ; void Read_password()
+ 051C           ; {
+ 051C                   .dbline 332
+ 051C           ;       uchar i=0;
+ 051C                   .dbline 333
+ 051C           ;       delay_ms(300);
+ 051C 0CE2              ldi R16,300
+ 051E 11E0              ldi R17,1
+ 0520 0E940000          xcall _delay_ms
+ 0524                   .dbline 334
+ 0524           ;       for(i=0;i<4;i++)
+ 0524 4427              clr R20
+ 0526 0BC0              xjmp L109
+ 0528           L106:
+ 0528                   .dbline 335
+ 0528           ;       {
+ 0528                   .dbline 336
+ 0528           ;               Right_password[i]=eeprom_read(i);
+ 0528 042F              mov R16,R20
+ 052A 0E940000          xcall _eeprom_read
+ 052E 80E0              ldi R24,<_Right_password
+ 0530 90E0              ldi R25,>_Right_password
+ 0532 E42F              mov R30,R20
+ 0534 FF27              clr R31
+ 0536 E80F              add R30,R24
+ 0538 F91F              adc R31,R25
+ 053A 0083              std z+0,R16
+ 053C                   .dbline 337
+ 053C           ;       }
+ 053C           L107:
+ 053C                   .dbline 334
+ 053C 4395              inc R20
+ 053E           L109:
+ 053E                   .dbline 334
+ 053E 4430              cpi R20,4
+ 0540 98F3              brlo L106
+ 0542           X28:
+ 0542                   .dbline -2
+ 0542           L105:
+ 0542                   .dbline 0 ; func end
+ 0542 4991              ld R20,y+
+ 0544 0895              ret
+ 0546                   .dbsym r i 20 c
+ 0546                   .dbend
+                        .area vector(rom, abs)
+                        .org 12
+ 000C 0C94A302          jmp _t2_isr
+                        .area text(rom, con, rel)
+ 0546                   .dbfile F:\avr\状态机大作业\main.c
+ 0546                   .dbfunc e t2_isr _t2_isr fV
+                        .even
+ 0546           _t2_isr::
+ 0546 0A92              st -y,R0
+ 0548 1A92              st -y,R1
+ 054A 2A92              st -y,R2
+ 054C 3A92              st -y,R3
+ 054E 4A92              st -y,R4
+ 0550 5A92              st -y,R5
+ 0552 6A92              st -y,R6
+ 0554 7A92              st -y,R7
+ 0556 8A92              st -y,R8
+ 0558 9A92              st -y,R9
+ 055A 0A93              st -y,R16
+ 055C 1A93              st -y,R17
+ 055E 2A93              st -y,R18
+ 0560 3A93              st -y,R19
+ 0562 8A93              st -y,R24
+ 0564 9A93              st -y,R25
+ 0566 AA93              st -y,R26
+ 0568 BA93              st -y,R27
+ 056A EA93              st -y,R30
+ 056C FA93              st -y,R31
+ 056E 0FB6              IN R0,63
+ 0570 0A92              st -y,R0
+ 0572 0E940000          xcall push_xgsetF000
+ 0576                   .dbline -1
+ 0576                   .dbline 346
+ 0576           ;       
+ 0576           ; }
+ 0576           ; /*读取eeprom中储存的密码*/
+ 0576           ; 
+ 0576           ; 
+ 0576           ; /*键盘扫描以及判断*/
+ 0576           ; #pragma interrupt_handler t2_isr:4
+ 0576           ; void t2_isr()                                                                                                 //select对应键盘上的数字,不要说我魔鬼数字...                                                                                                                                                                                    
+ 0576           ; {
+ 0576                   .dbline 348
+ 0576           ;       
+ 0576           ;       ADCSRA|= (1<<ADSC);
+ 0576 369A              sbi 0x6,6
+ 0578           L111:
+ 0578                   .dbline 349
+ 0578           ;       while(!(ADCSRA & 0x10));
+ 0578           L112:
+ 0578                   .dbline 349
+ 0578 349B              sbis 0x6,4
+ 057A FECF              rjmp L111
+ 057C           X29:
+ 057C                   .dbline 350
+ 057C           ;       AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 057C 25B0              in R2,0x5
+ 057E 3324              clr R3
+ 0580 4424              clr R4
+ 0582 5524              clr R5
+ 0584 42E4              ldi R20,66
+ 0586 53E1              ldi R21,19
+ 0588 60E0              ldi R22,0
+ 058A 70E0              ldi R23,0
+ 058C 5A92              st -y,R5
+ 058E 4A92              st -y,R4
+ 0590 3A92              st -y,R3
+ 0592 2A92              st -y,R2
+ 0594 8A01              movw R16,R20
+ 0596 9B01              movw R18,R22
+ 0598 0E940000          xcall empy32u
+ 059C 88E0              ldi R24,8
+ 059E 90E0              ldi R25,0
+ 05A0 8A93              st -y,R24
+ 05A2 0E940000          xcall lsr32
+ 05A6 10930D00          sts _AdcData+1,R17
+ 05AA 00930C00          sts _AdcData,R16
+ 05AE                   .dbline 351
+ 05AE           ;       ADCSRA &= ~(0x10);                                                                                                                      
+ 05AE 3498              cbi 0x6,4
+ 05B0                   .dbline 353
+ 05B0           ; 
+ 05B0           ;       IsPress=0;                                              //按下标志位清零                                                                                                        
+ 05B0 2224              clr R2
+ 05B2 20920200          sts _IsPress,R2
+ 05B6                   .dbline 354
+ 05B6           ;       if(AdcData==4660)                                                                                       //因为在proteus中每次电压都不会有误差,所以只需"=="不用取一个范围,在现实中则需要范围
+ 05B6 0433              cpi R16,52
+ 05B8 E2E1              ldi R30,18
+ 05BA 1E07              cpc R17,R30
+ 05BC 39F5              brne L114
+ 05BE           X30:
+ 05BE                   .dbline 355
+ 05BE           ;       {
+ 05BE                   .dbline 356
+ 05BE           ;               ADCSRA|= (1<<ADSC);                                                                                                                     
+ 05BE 369A              sbi 0x6,6
+ 05C0           L116:
+ 05C0                   .dbline 357
+ 05C0           ;               while(!(ADCSRA & 0x10));
+ 05C0           L117:
+ 05C0                   .dbline 357
+ 05C0 349B              sbis 0x6,4
+ 05C2 FECF              rjmp L116
+ 05C4           X31:
+ 05C4                   .dbline 358
+ 05C4           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 05C4 25B0              in R2,0x5
+ 05C6 3324              clr R3
+ 05C8 4424              clr R4
+ 05CA 5524              clr R5
+ 05CC 42E4              ldi R20,66
+ 05CE 53E1              ldi R21,19
+ 05D0 60E0              ldi R22,0
+ 05D2 70E0              ldi R23,0
+ 05D4 5A92              st -y,R5
+ 05D6 4A92              st -y,R4
+ 05D8 3A92              st -y,R3
+ 05DA 2A92              st -y,R2
+ 05DC 8A01              movw R16,R20
+ 05DE 9B01              movw R18,R22
+ 05E0 0E940000          xcall empy32u
+ 05E4 88E0              ldi R24,8
+ 05E6 90E0              ldi R25,0
+ 05E8 8A93              st -y,R24
+ 05EA 0E940000          xcall lsr32
+ 05EE 10930D00          sts _AdcData+1,R17
+ 05F2 00930C00          sts _AdcData,R16
+ 05F6                   .dbline 359
+ 05F6           ;               ADCSRA &= ~(0x10);              
+ 05F6 3498              cbi 0x6,4
+ 05F8                   .dbline 360
+ 05F8           ;               if(AdcData==4660)
+ 05F8 0433              cpi R16,52
+ 05FA E2E1              ldi R30,18
+ 05FC 1E07              cpc R17,R30
+ 05FE 31F4              brne L119
+ 0600           X32:
+ 0600                   .dbline 361
+ 0600           ;               {
+ 0600                   .dbline 362
+ 0600           ;                       IsPress=1;
+ 0600 81E0              ldi R24,1
+ 0602 80930200          sts _IsPress,R24
+ 0606                   .dbline 363
+ 0606           ;                       select='1';
+ 0606 81E3              ldi R24,49
+ 0608 80930100          sts _select,R24
+ 060C                   .dbline 364
+ 060C           ;               }
+ 060C           L119:
+ 060C                   .dbline 365
+ 060C           ;       }
+ 060C           L114:
+ 060C                   .dbline 367
+ 060C           ;       
+ 060C           ;       if(AdcData==4390)                                                                               
+ 060C 80910C00          lds R24,_AdcData
+ 0610 90910D00          lds R25,_AdcData+1
+ 0614 8632              cpi R24,38
+ 0616 E1E1              ldi R30,17
+ 0618 9E07              cpc R25,R30
+ 061A 39F5              brne L121
+ 061C           X33:
+ 061C                   .dbline 368
+ 061C           ;       {
+ 061C                   .dbline 369
+ 061C           ;               ADCSRA|= (1<<ADSC);
+ 061C 369A              sbi 0x6,6
+ 061E           L123:
+ 061E                   .dbline 370
+ 061E           ;               while(!(ADCSRA & 0x10));
+ 061E           L124:
+ 061E                   .dbline 370
+ 061E 349B              sbis 0x6,4
+ 0620 FECF              rjmp L123
+ 0622           X34:
+ 0622                   .dbline 371
+ 0622           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 0622 25B0              in R2,0x5
+ 0624 3324              clr R3
+ 0626 4424              clr R4
+ 0628 5524              clr R5
+ 062A 42E4              ldi R20,66
+ 062C 53E1              ldi R21,19
+ 062E 60E0              ldi R22,0
+ 0630 70E0              ldi R23,0
+ 0632 5A92              st -y,R5
+ 0634 4A92              st -y,R4
+ 0636 3A92              st -y,R3
+ 0638 2A92              st -y,R2
+ 063A 8A01              movw R16,R20
+ 063C 9B01              movw R18,R22
+ 063E 0E940000          xcall empy32u
+ 0642 88E0              ldi R24,8
+ 0644 90E0              ldi R25,0
+ 0646 8A93              st -y,R24
+ 0648 0E940000          xcall lsr32
+ 064C 10930D00          sts _AdcData+1,R17
+ 0650 00930C00          sts _AdcData,R16
+ 0654                   .dbline 372
+ 0654           ;               ADCSRA &= ~(0x10);
+ 0654 3498              cbi 0x6,4
+ 0656                   .dbline 373
+ 0656           ;               if(AdcData==4390)
+ 0656 0632              cpi R16,38
+ 0658 E1E1              ldi R30,17
+ 065A 1E07              cpc R17,R30
+ 065C 31F4              brne L126
+ 065E           X35:
+ 065E                   .dbline 374
+ 065E           ;               {
+ 065E                   .dbline 375
+ 065E           ;                       IsPress=1;
+ 065E 81E0              ldi R24,1
+ 0660 80930200          sts _IsPress,R24
+ 0664                   .dbline 376
+ 0664           ;                       select='2';
+ 0664 82E3              ldi R24,50
+ 0666 80930100          sts _select,R24
+ 066A                   .dbline 377
+ 066A           ;               }
+ 066A           L126:
+ 066A                   .dbline 378
+ 066A           ;       }
+ 066A           L121:
+ 066A                   .dbline 379
+ 066A           ;     if(AdcData==4140) 
+ 066A 80910C00          lds R24,_AdcData
+ 066E 90910D00          lds R25,_AdcData+1
+ 0672 8C32              cpi R24,44
+ 0674 E0E1              ldi R30,16
+ 0676 9E07              cpc R25,R30
+ 0678 39F5              brne L128
+ 067A           X36:
+ 067A                   .dbline 380
+ 067A           ;       {
+ 067A                   .dbline 381
+ 067A           ;               ADCSRA|= (1<<ADSC);
+ 067A 369A              sbi 0x6,6
+ 067C           L130:
+ 067C                   .dbline 382
+ 067C           ;               while(!(ADCSRA & 0x10));
+ 067C           L131:
+ 067C                   .dbline 382
+ 067C 349B              sbis 0x6,4
+ 067E FECF              rjmp L130
+ 0680           X37:
+ 0680                   .dbline 383
+ 0680           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 0680 25B0              in R2,0x5
+ 0682 3324              clr R3
+ 0684 4424              clr R4
+ 0686 5524              clr R5
+ 0688 42E4              ldi R20,66
+ 068A 53E1              ldi R21,19
+ 068C 60E0              ldi R22,0
+ 068E 70E0              ldi R23,0
+ 0690 5A92              st -y,R5
+ 0692 4A92              st -y,R4
+ 0694 3A92              st -y,R3
+ 0696 2A92              st -y,R2
+ 0698 8A01              movw R16,R20
+ 069A 9B01              movw R18,R22
+ 069C 0E940000          xcall empy32u
+ 06A0 88E0              ldi R24,8
+ 06A2 90E0              ldi R25,0
+ 06A4 8A93              st -y,R24
+ 06A6 0E940000          xcall lsr32
+ 06AA 10930D00          sts _AdcData+1,R17
+ 06AE 00930C00          sts _AdcData,R16
+ 06B2                   .dbline 384
+ 06B2           ;               ADCSRA &= ~(0x10);
+ 06B2 3498              cbi 0x6,4
+ 06B4                   .dbline 385
+ 06B4           ;               if(AdcData==4140)
+ 06B4 0C32              cpi R16,44
+ 06B6 E0E1              ldi R30,16
+ 06B8 1E07              cpc R17,R30
+ 06BA 31F4              brne L133
+ 06BC           X38:
+ 06BC                   .dbline 386
+ 06BC           ;               {
+ 06BC                   .dbline 387
+ 06BC           ;                       IsPress=1;
+ 06BC 81E0              ldi R24,1
+ 06BE 80930200          sts _IsPress,R24
+ 06C2                   .dbline 388
+ 06C2           ;                       select='3';
+ 06C2 83E3              ldi R24,51
+ 06C4 80930100          sts _select,R24
+ 06C8                   .dbline 389
+ 06C8           ;               }
+ 06C8           L133:
+ 06C8                   .dbline 390
+ 06C8           ;       }
+ 06C8           L128:
+ 06C8                   .dbline 391
+ 06C8           ;       if(AdcData==3870)       
+ 06C8 80910C00          lds R24,_AdcData
+ 06CC 90910D00          lds R25,_AdcData+1
+ 06D0 8E31              cpi R24,30
+ 06D2 EFE0              ldi R30,15
+ 06D4 9E07              cpc R25,R30
+ 06D6 39F5              brne L135
+ 06D8           X39:
+ 06D8                   .dbline 392
+ 06D8           ;       {
+ 06D8                   .dbline 393
+ 06D8           ;               ADCSRA|= (1<<ADSC);
+ 06D8 369A              sbi 0x6,6
+ 06DA           L137:
+ 06DA                   .dbline 394
+ 06DA           ;               while(!(ADCSRA & 0x10));
+ 06DA           L138:
+ 06DA                   .dbline 394
+ 06DA 349B              sbis 0x6,4
+ 06DC FECF              rjmp L137
+ 06DE           X40:
+ 06DE                   .dbline 395
+ 06DE           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 06DE 25B0              in R2,0x5
+ 06E0 3324              clr R3
+ 06E2 4424              clr R4
+ 06E4 5524              clr R5
+ 06E6 42E4              ldi R20,66
+ 06E8 53E1              ldi R21,19
+ 06EA 60E0              ldi R22,0
+ 06EC 70E0              ldi R23,0
+ 06EE 5A92              st -y,R5
+ 06F0 4A92              st -y,R4
+ 06F2 3A92              st -y,R3
+ 06F4 2A92              st -y,R2
+ 06F6 8A01              movw R16,R20
+ 06F8 9B01              movw R18,R22
+ 06FA 0E940000          xcall empy32u
+ 06FE 88E0              ldi R24,8
+ 0700 90E0              ldi R25,0
+ 0702 8A93              st -y,R24
+ 0704 0E940000          xcall lsr32
+ 0708 10930D00          sts _AdcData+1,R17
+ 070C 00930C00          sts _AdcData,R16
+ 0710                   .dbline 396
+ 0710           ;               ADCSRA &= ~(0x10);
+ 0710 3498              cbi 0x6,4
+ 0712                   .dbline 397
+ 0712           ;               if(AdcData==3870)
+ 0712 0E31              cpi R16,30
+ 0714 EFE0              ldi R30,15
+ 0716 1E07              cpc R17,R30
+ 0718 31F4              brne L140
+ 071A           X41:
+ 071A                   .dbline 398
+ 071A           ;               {
+ 071A                   .dbline 399
+ 071A           ;                       IsPress=1;
+ 071A 81E0              ldi R24,1
+ 071C 80930200          sts _IsPress,R24
+ 0720                   .dbline 400
+ 0720           ;                       select='4';
+ 0720 84E3              ldi R24,52
+ 0722 80930100          sts _select,R24
+ 0726                   .dbline 401
+ 0726           ;               }
+ 0726           L140:
+ 0726                   .dbline 402
+ 0726           ;       }
+ 0726           L135:
+ 0726                   .dbline 403
+ 0726           ;       if(AdcData==3601)       
+ 0726 80910C00          lds R24,_AdcData
+ 072A 90910D00          lds R25,_AdcData+1
+ 072E 8131              cpi R24,17
+ 0730 EEE0              ldi R30,14
+ 0732 9E07              cpc R25,R30
+ 0734 39F5              brne L142
+ 0736           X42:
+ 0736                   .dbline 404
+ 0736           ;       {
+ 0736                   .dbline 405
+ 0736           ;               ADCSRA|= (1<<ADSC);
+ 0736 369A              sbi 0x6,6
+ 0738           L144:
+ 0738                   .dbline 406
+ 0738           ;               while(!(ADCSRA & 0x10));
+ 0738           L145:
+ 0738                   .dbline 406
+ 0738 349B              sbis 0x6,4
+ 073A FECF              rjmp L144
+ 073C           X43:
+ 073C                   .dbline 407
+ 073C           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 073C 25B0              in R2,0x5
+ 073E 3324              clr R3
+ 0740 4424              clr R4
+ 0742 5524              clr R5
+ 0744 42E4              ldi R20,66
+ 0746 53E1              ldi R21,19
+ 0748 60E0              ldi R22,0
+ 074A 70E0              ldi R23,0
+ 074C 5A92              st -y,R5
+ 074E 4A92              st -y,R4
+ 0750 3A92              st -y,R3
+ 0752 2A92              st -y,R2
+ 0754 8A01              movw R16,R20
+ 0756 9B01              movw R18,R22
+ 0758 0E940000          xcall empy32u
+ 075C 88E0              ldi R24,8
+ 075E 90E0              ldi R25,0
+ 0760 8A93              st -y,R24
+ 0762 0E940000          xcall lsr32
+ 0766 10930D00          sts _AdcData+1,R17
+ 076A 00930C00          sts _AdcData,R16
+ 076E                   .dbline 408
+ 076E           ;               ADCSRA &= ~(0x10);
+ 076E 3498              cbi 0x6,4
+ 0770                   .dbline 409
+ 0770           ;               if(AdcData==3601)
+ 0770 0131              cpi R16,17
+ 0772 EEE0              ldi R30,14
+ 0774 1E07              cpc R17,R30
+ 0776 31F4              brne L147
+ 0778           X44:
+ 0778                   .dbline 410
+ 0778           ;               {
+ 0778                   .dbline 411
+ 0778           ;                       IsPress=1;
+ 0778 81E0              ldi R24,1
+ 077A 80930200          sts _IsPress,R24
+ 077E                   .dbline 412
+ 077E           ;                       select='5';
+ 077E 85E3              ldi R24,53
+ 0780 80930100          sts _select,R24
+ 0784                   .dbline 413
+ 0784           ;               }
+ 0784           L147:
+ 0784                   .dbline 414
+ 0784           ;       }
+ 0784           L142:
+ 0784                   .dbline 415
+ 0784           ;       if(AdcData==3350)       
+ 0784 80910C00          lds R24,_AdcData
+ 0788 90910D00          lds R25,_AdcData+1
+ 078C 8631              cpi R24,22
+ 078E EDE0              ldi R30,13
+ 0790 9E07              cpc R25,R30
+ 0792 39F5              brne L149
+ 0794           X45:
+ 0794                   .dbline 416
+ 0794           ;       {
+ 0794                   .dbline 417
+ 0794           ;               ADCSRA|= (1<<ADSC);
+ 0794 369A              sbi 0x6,6
+ 0796           L151:
+ 0796                   .dbline 418
+ 0796           ;               while(!(ADCSRA & 0x10));
+ 0796           L152:
+ 0796                   .dbline 418
+ 0796 349B              sbis 0x6,4
+ 0798 FECF              rjmp L151
+ 079A           X46:
+ 079A                   .dbline 419
+ 079A           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 079A 25B0              in R2,0x5
+ 079C 3324              clr R3
+ 079E 4424              clr R4
+ 07A0 5524              clr R5
+ 07A2 42E4              ldi R20,66
+ 07A4 53E1              ldi R21,19
+ 07A6 60E0              ldi R22,0
+ 07A8 70E0              ldi R23,0
+ 07AA 5A92              st -y,R5
+ 07AC 4A92              st -y,R4
+ 07AE 3A92              st -y,R3
+ 07B0 2A92              st -y,R2
+ 07B2 8A01              movw R16,R20
+ 07B4 9B01              movw R18,R22
+ 07B6 0E940000          xcall empy32u
+ 07BA 88E0              ldi R24,8
+ 07BC 90E0              ldi R25,0
+ 07BE 8A93              st -y,R24
+ 07C0 0E940000          xcall lsr32
+ 07C4 10930D00          sts _AdcData+1,R17
+ 07C8 00930C00          sts _AdcData,R16
+ 07CC                   .dbline 420
+ 07CC           ;               ADCSRA &= ~(0x10);
+ 07CC 3498              cbi 0x6,4
+ 07CE                   .dbline 421
+ 07CE           ;               if(AdcData==3350)
+ 07CE 0631              cpi R16,22
+ 07D0 EDE0              ldi R30,13
+ 07D2 1E07              cpc R17,R30
+ 07D4 31F4              brne L154
+ 07D6           X47:
+ 07D6                   .dbline 422
+ 07D6           ;               {
+ 07D6                   .dbline 423
+ 07D6           ;                       IsPress=1;
+ 07D6 81E0              ldi R24,1
+ 07D8 80930200          sts _IsPress,R24
+ 07DC                   .dbline 424
+ 07DC           ;                       select='6';
+ 07DC 86E3              ldi R24,54
+ 07DE 80930100          sts _select,R24
+ 07E2                   .dbline 425
+ 07E2           ;               }
+ 07E2           L154:
+ 07E2                   .dbline 426
+ 07E2           ;       }
+ 07E2           L149:
+ 07E2                   .dbline 427
+ 07E2           ;       if(AdcData==3100)       
+ 07E2 80910C00          lds R24,_AdcData
+ 07E6 90910D00          lds R25,_AdcData+1
+ 07EA 8C31              cpi R24,28
+ 07EC ECE0              ldi R30,12
+ 07EE 9E07              cpc R25,R30
+ 07F0 39F5              brne L156
+ 07F2           X48:
+ 07F2                   .dbline 428
+ 07F2           ;       {
+ 07F2                   .dbline 429
+ 07F2           ;               ADCSRA|= (1<<ADSC);
+ 07F2 369A              sbi 0x6,6
+ 07F4           L158:
+ 07F4                   .dbline 430
+ 07F4           ;               while(!(ADCSRA & 0x10));
+ 07F4           L159:
+ 07F4                   .dbline 430
+ 07F4 349B              sbis 0x6,4
+ 07F6 FECF              rjmp L158
+ 07F8           X49:
+ 07F8                   .dbline 431
+ 07F8           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 07F8 25B0              in R2,0x5
+ 07FA 3324              clr R3
+ 07FC 4424              clr R4
+ 07FE 5524              clr R5
+ 0800 42E4              ldi R20,66
+ 0802 53E1              ldi R21,19
+ 0804 60E0              ldi R22,0
+ 0806 70E0              ldi R23,0
+ 0808 5A92              st -y,R5
+ 080A 4A92              st -y,R4
+ 080C 3A92              st -y,R3
+ 080E 2A92              st -y,R2
+ 0810 8A01              movw R16,R20
+ 0812 9B01              movw R18,R22
+ 0814 0E940000          xcall empy32u
+ 0818 88E0              ldi R24,8
+ 081A 90E0              ldi R25,0
+ 081C 8A93              st -y,R24
+ 081E 0E940000          xcall lsr32
+ 0822 10930D00          sts _AdcData+1,R17
+ 0826 00930C00          sts _AdcData,R16
+ 082A                   .dbline 432
+ 082A           ;               ADCSRA &= ~(0x10);
+ 082A 3498              cbi 0x6,4
+ 082C                   .dbline 433
+ 082C           ;               if(AdcData==3100)
+ 082C 0C31              cpi R16,28
+ 082E ECE0              ldi R30,12
+ 0830 1E07              cpc R17,R30
+ 0832 31F4              brne L161
+ 0834           X50:
+ 0834                   .dbline 434
+ 0834           ;               {
+ 0834                   .dbline 435
+ 0834           ;                       IsPress=1;
+ 0834 81E0              ldi R24,1
+ 0836 80930200          sts _IsPress,R24
+ 083A                   .dbline 436
+ 083A           ;                       select='7';
+ 083A 87E3              ldi R24,55
+ 083C 80930100          sts _select,R24
+ 0840                   .dbline 437
+ 0840           ;               }
+ 0840           L161:
+ 0840                   .dbline 438
+ 0840           ;       }
+ 0840           L156:
+ 0840                   .dbline 439
+ 0840           ;       if(AdcData==2830)  
+ 0840 80910C00          lds R24,_AdcData
+ 0844 90910D00          lds R25,_AdcData+1
+ 0848 8E30              cpi R24,14
+ 084A EBE0              ldi R30,11
+ 084C 9E07              cpc R25,R30
+ 084E 39F5              brne L163
+ 0850           X51:
+ 0850                   .dbline 440
+ 0850           ;       {
+ 0850                   .dbline 441
+ 0850           ;               ADCSRA|= (1<<ADSC);
+ 0850 369A              sbi 0x6,6
+ 0852           L165:
+ 0852                   .dbline 442
+ 0852           ;               while(!(ADCSRA & 0x10));
+ 0852           L166:
+ 0852                   .dbline 442
+ 0852 349B              sbis 0x6,4
+ 0854 FECF              rjmp L165
+ 0856           X52:
+ 0856                   .dbline 443
+ 0856           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 0856 25B0              in R2,0x5
+ 0858 3324              clr R3
+ 085A 4424              clr R4
+ 085C 5524              clr R5
+ 085E 42E4              ldi R20,66
+ 0860 53E1              ldi R21,19
+ 0862 60E0              ldi R22,0
+ 0864 70E0              ldi R23,0
+ 0866 5A92              st -y,R5
+ 0868 4A92              st -y,R4
+ 086A 3A92              st -y,R3
+ 086C 2A92              st -y,R2
+ 086E 8A01              movw R16,R20
+ 0870 9B01              movw R18,R22
+ 0872 0E940000          xcall empy32u
+ 0876 88E0              ldi R24,8
+ 0878 90E0              ldi R25,0
+ 087A 8A93              st -y,R24
+ 087C 0E940000          xcall lsr32
+ 0880 10930D00          sts _AdcData+1,R17
+ 0884 00930C00          sts _AdcData,R16
+ 0888                   .dbline 444
+ 0888           ;               ADCSRA &= ~(0x10);
+ 0888 3498              cbi 0x6,4
+ 088A                   .dbline 445
+ 088A           ;               if(AdcData==2830)
+ 088A 0E30              cpi R16,14
+ 088C EBE0              ldi R30,11
+ 088E 1E07              cpc R17,R30
+ 0890 31F4              brne L168
+ 0892           X53:
+ 0892                   .dbline 446
+ 0892           ;               {
+ 0892                   .dbline 447
+ 0892           ;                       IsPress=1;
+ 0892 81E0              ldi R24,1
+ 0894 80930200          sts _IsPress,R24
+ 0898                   .dbline 448
+ 0898           ;                       select='8';
+ 0898 88E3              ldi R24,56
+ 089A 80930100          sts _select,R24
+ 089E                   .dbline 449
+ 089E           ;               }
+ 089E           L168:
+ 089E                   .dbline 450
+ 089E           ;       }
+ 089E           L163:
+ 089E                   .dbline 451
+ 089E           ;       if(AdcData==2580)       
+ 089E 80910C00          lds R24,_AdcData
+ 08A2 90910D00          lds R25,_AdcData+1
+ 08A6 8431              cpi R24,20
+ 08A8 EAE0              ldi R30,10
+ 08AA 9E07              cpc R25,R30
+ 08AC 39F5              brne L170
+ 08AE           X54:
+ 08AE                   .dbline 452
+ 08AE           ;       {
+ 08AE                   .dbline 453
+ 08AE           ;               ADCSRA|= (1<<ADSC);
+ 08AE 369A              sbi 0x6,6
+ 08B0           L172:
+ 08B0                   .dbline 454
+ 08B0           ;               while(!(ADCSRA & 0x10));
+ 08B0           L173:
+ 08B0                   .dbline 454
+ 08B0 349B              sbis 0x6,4
+ 08B2 FECF              rjmp L172
+ 08B4           X55:
+ 08B4                   .dbline 455
+ 08B4           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 08B4 25B0              in R2,0x5
+ 08B6 3324              clr R3
+ 08B8 4424              clr R4
+ 08BA 5524              clr R5
+ 08BC 42E4              ldi R20,66
+ 08BE 53E1              ldi R21,19
+ 08C0 60E0              ldi R22,0
+ 08C2 70E0              ldi R23,0
+ 08C4 5A92              st -y,R5
+ 08C6 4A92              st -y,R4
+ 08C8 3A92              st -y,R3
+ 08CA 2A92              st -y,R2
+ 08CC 8A01              movw R16,R20
+ 08CE 9B01              movw R18,R22
+ 08D0 0E940000          xcall empy32u
+ 08D4 88E0              ldi R24,8
+ 08D6 90E0              ldi R25,0
+ 08D8 8A93              st -y,R24
+ 08DA 0E940000          xcall lsr32
+ 08DE 10930D00          sts _AdcData+1,R17
+ 08E2 00930C00          sts _AdcData,R16
+ 08E6                   .dbline 456
+ 08E6           ;               ADCSRA &= ~(0x10);
+ 08E6 3498              cbi 0x6,4
+ 08E8                   .dbline 457
+ 08E8           ;               if(AdcData==2580)
+ 08E8 0431              cpi R16,20
+ 08EA EAE0              ldi R30,10
+ 08EC 1E07              cpc R17,R30
+ 08EE 31F4              brne L175
+ 08F0           X56:
+ 08F0                   .dbline 458
+ 08F0           ;               {
+ 08F0                   .dbline 459
+ 08F0           ;                       IsPress=1;
+ 08F0 81E0              ldi R24,1
+ 08F2 80930200          sts _IsPress,R24
+ 08F6                   .dbline 460
+ 08F6           ;                       select='9';
+ 08F6 89E3              ldi R24,57
+ 08F8 80930100          sts _select,R24
+ 08FC                   .dbline 461
+ 08FC           ;               }
+ 08FC           L175:
+ 08FC                   .dbline 462
+ 08FC           ;       }
+ 08FC           L170:
+ 08FC                   .dbline 463
+ 08FC           ;       if(AdcData==2310)       
+ 08FC 80910C00          lds R24,_AdcData
+ 0900 90910D00          lds R25,_AdcData+1
+ 0904 8630              cpi R24,6
+ 0906 E9E0              ldi R30,9
+ 0908 9E07              cpc R25,R30
+ 090A B9F5              brne L177
+ 090C           X57:
+ 090C                   .dbline 464
+ 090C           ;       {
+ 090C                   .dbline 465
+ 090C           ;               ADCSRA|= (1<<ADSC);
+ 090C 369A              sbi 0x6,6
+ 090E           L179:
+ 090E                   .dbline 466
+ 090E           ;               while(!(ADCSRA & 0x10));
+ 090E           L180:
+ 090E                   .dbline 466
+ 090E 349B              sbis 0x6,4
+ 0910 FECF              rjmp L179
+ 0912           X58:
+ 0912                   .dbline 467
+ 0912           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 0912 25B0              in R2,0x5
+ 0914 3324              clr R3
+ 0916 4424              clr R4
+ 0918 5524              clr R5
+ 091A 42E4              ldi R20,66
+ 091C 53E1              ldi R21,19
+ 091E 60E0              ldi R22,0
+ 0920 70E0              ldi R23,0
+ 0922 5A92              st -y,R5
+ 0924 4A92              st -y,R4
+ 0926 3A92              st -y,R3
+ 0928 2A92              st -y,R2
+ 092A 8A01              movw R16,R20
+ 092C 9B01              movw R18,R22
+ 092E 0E940000          xcall empy32u
+ 0932 88E0              ldi R24,8
+ 0934 90E0              ldi R25,0
+ 0936 8A93              st -y,R24
+ 0938 0E940000          xcall lsr32
+ 093C 10930D00          sts _AdcData+1,R17
+ 0940 00930C00          sts _AdcData,R16
+ 0944                   .dbline 468
+ 0944           ;               ADCSRA &= ~(0x10);
+ 0944 3498              cbi 0x6,4
+ 0946                   .dbline 469
+ 0946           ;               if(AdcData==2310)
+ 0946 0630              cpi R16,6
+ 0948 E9E0              ldi R30,9
+ 094A 1E07              cpc R17,R30
+ 094C B1F4              brne L182
+ 094E           X59:
+ 094E                   .dbline 470
+ 094E           ;               {
+ 094E                   .dbline 471
+ 094E           ;                       IsPress=1;
+ 094E 81E0              ldi R24,1
+ 0950 80930200          sts _IsPress,R24
+ 0954                   .dbline 472
+ 0954           ;                       select='*';             
+ 0954 8AE2              ldi R24,42
+ 0956 80930100          sts _select,R24
+ 095A                   .dbline 473
+ 095A           ;                       if(function!=5) 
+ 095A 80910300          lds R24,_function
+ 095E 8530              cpi R24,5
+ 0960 61F0              breq L184
+ 0962           X60:
+ 0962                   .dbline 474
+ 0962           ;                       {
+ 0962                   .dbline 475
+ 0962           ;                               Driver_595(0x00,0x00);
+ 0962 2227              clr R18
+ 0964 3327              clr R19
+ 0966 0027              clr R16
+ 0968 1127              clr R17
+ 096A 0E940000          xcall _Driver_595
+ 096E                   .dbline 476
+ 096E           ;                               eeprom_write(100,1);
+ 096E 21E0              ldi R18,1
+ 0970 04E6              ldi R16,100
+ 0972 0E940000          xcall _eeprom_write
+ 0976                   .dbline 477
+ 0976           ;                               reset();
+ 0976 0E940000          xcall _reset
+ 097A                   .dbline 478
+ 097A           ;                       }
+ 097A           L184:
+ 097A                   .dbline 479
+ 097A           ;               }
+ 097A           L182:
+ 097A                   .dbline 481
+ 097A           ;               
+ 097A           ;       }
+ 097A           L177:
+ 097A                   .dbline 483
+ 097A           ;               
+ 097A           ;       if(AdcData==2060)       
+ 097A 80910C00          lds R24,_AdcData
+ 097E 90910D00          lds R25,_AdcData+1
+ 0982 8C30              cpi R24,12
+ 0984 E8E0              ldi R30,8
+ 0986 9E07              cpc R25,R30
+ 0988 39F5              brne L186
+ 098A           X61:
+ 098A                   .dbline 484
+ 098A           ;       {
+ 098A                   .dbline 485
+ 098A           ;               ADCSRA|= (1<<ADSC);
+ 098A 369A              sbi 0x6,6
+ 098C           L188:
+ 098C                   .dbline 486
+ 098C           ;               while(!(ADCSRA & 0x10));
+ 098C           L189:
+ 098C                   .dbline 486
+ 098C 349B              sbis 0x6,4
+ 098E FECF              rjmp L188
+ 0990           X62:
+ 0990                   .dbline 487
+ 0990           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 0990 25B0              in R2,0x5
+ 0992 3324              clr R3
+ 0994 4424              clr R4
+ 0996 5524              clr R5
+ 0998 42E4              ldi R20,66
+ 099A 53E1              ldi R21,19
+ 099C 60E0              ldi R22,0
+ 099E 70E0              ldi R23,0
+ 09A0 5A92              st -y,R5
+ 09A2 4A92              st -y,R4
+ 09A4 3A92              st -y,R3
+ 09A6 2A92              st -y,R2
+ 09A8 8A01              movw R16,R20
+ 09AA 9B01              movw R18,R22
+ 09AC 0E940000          xcall empy32u
+ 09B0 88E0              ldi R24,8
+ 09B2 90E0              ldi R25,0
+ 09B4 8A93              st -y,R24
+ 09B6 0E940000          xcall lsr32
+ 09BA 10930D00          sts _AdcData+1,R17
+ 09BE 00930C00          sts _AdcData,R16
+ 09C2                   .dbline 488
+ 09C2           ;               ADCSRA &= ~(0x10);
+ 09C2 3498              cbi 0x6,4
+ 09C4                   .dbline 489
+ 09C4           ;               if(AdcData==2060)
+ 09C4 0C30              cpi R16,12
+ 09C6 E8E0              ldi R30,8
+ 09C8 1E07              cpc R17,R30
+ 09CA 31F4              brne L191
+ 09CC           X63:
+ 09CC                   .dbline 490
+ 09CC           ;               {
+ 09CC                   .dbline 491
+ 09CC           ;                       IsPress=1;
+ 09CC 81E0              ldi R24,1
+ 09CE 80930200          sts _IsPress,R24
+ 09D2                   .dbline 492
+ 09D2           ;                       select='0';
+ 09D2 80E3              ldi R24,48
+ 09D4 80930100          sts _select,R24
+ 09D8                   .dbline 493
+ 09D8           ;               }
+ 09D8           L191:
+ 09D8                   .dbline 494
+ 09D8           ;       }
+ 09D8           L186:
+ 09D8                   .dbline 495
+ 09D8           ;       if(AdcData==1810)       
+ 09D8 80910C00          lds R24,_AdcData
+ 09DC 90910D00          lds R25,_AdcData+1
+ 09E0 8231              cpi R24,18
+ 09E2 E7E0              ldi R30,7
+ 09E4 9E07              cpc R25,R30
+ 09E6 39F5              brne L193
+ 09E8           X64:
+ 09E8                   .dbline 496
+ 09E8           ;       {
+ 09E8                   .dbline 497
+ 09E8           ;               ADCSRA|= (1<<ADSC);
+ 09E8 369A              sbi 0x6,6
+ 09EA           L195:
+ 09EA                   .dbline 498
+ 09EA           ;               while(!(ADCSRA & 0x10));
+ 09EA           L196:
+ 09EA                   .dbline 498
+ 09EA 349B              sbis 0x6,4
+ 09EC FECF              rjmp L195
+ 09EE           X65:
+ 09EE                   .dbline 499
+ 09EE           ;               AdcData=(uint)((ulong)ADCH * 4930 / 256);
+ 09EE 25B0              in R2,0x5
+ 09F0 3324              clr R3
+ 09F2 4424              clr R4
+ 09F4 5524              clr R5
+ 09F6 42E4              ldi R20,66
+ 09F8 53E1              ldi R21,19
+ 09FA 60E0              ldi R22,0
+ 09FC 70E0              ldi R23,0
+ 09FE 5A92              st -y,R5
+ 0A00 4A92              st -y,R4
+ 0A02 3A92              st -y,R3
+ 0A04 2A92              st -y,R2
+ 0A06 8A01              movw R16,R20
+ 0A08 9B01              movw R18,R22
+ 0A0A 0E940000          xcall empy32u
+ 0A0E 88E0              ldi R24,8
+ 0A10 90E0              ldi R25,0
+ 0A12 8A93              st -y,R24
+ 0A14 0E940000          xcall lsr32
+ 0A18 10930D00          sts _AdcData+1,R17
+ 0A1C 00930C00          sts _AdcData,R16
+ 0A20                   .dbline 500
+ 0A20           ;               ADCSRA &= ~(0x10);
+ 0A20 3498              cbi 0x6,4
+ 0A22                   .dbline 501
+ 0A22           ;               if(AdcData==1810)
+ 0A22 0231              cpi R16,18
+ 0A24 E7E0              ldi R30,7
+ 0A26 1E07              cpc R17,R30
+ 0A28 31F4              brne L198
+ 0A2A           X66:
+ 0A2A                   .dbline 502
+ 0A2A           ;               {
+ 0A2A                   .dbline 503
+ 0A2A           ;                       IsPress=1;
+ 0A2A 81E0              ldi R24,1
+ 0A2C 80930200          sts _IsPress,R24
+ 0A30                   .dbline 504
+ 0A30           ;                       select='#';
+ 0A30 83E2              ldi R24,35
+ 0A32 80930100          sts _select,R24
+ 0A36                   .dbline 505
+ 0A36           ;               }
+ 0A36           L198:
+ 0A36                   .dbline 506
+ 0A36           ;       }
+ 0A36           L193:
+ 0A36                   .dbline 508
+ 0A36           ;       
+ 0A36           ;       AdcConCom = 1; //置ADC转换完成标志
+ 0A36 81E0              ldi R24,1
+ 0A38 80930000          sts _AdcConCom,R24
+ 0A3C                   .dbline -2
+ 0A3C           L110:
+ 0A3C                   .dbline 0 ; func end
+ 0A3C 0E940000          xcall pop_xgsetF000
+ 0A40 0990              ld R0,y+
+ 0A42 0FBE              OUT 63,R0
+ 0A44 F991              ld R31,y+
+ 0A46 E991              ld R30,y+
+ 0A48 B991              ld R27,y+
+ 0A4A A991              ld R26,y+
+ 0A4C 9991              ld R25,y+
+ 0A4E 8991              ld R24,y+
+ 0A50 3991              ld R19,y+
+ 0A52 2991              ld R18,y+
+ 0A54 1991              ld R17,y+
+ 0A56 0991              ld R16,y+
+ 0A58 9990              ld R9,y+
+ 0A5A 8990              ld R8,y+
+ 0A5C 7990              ld R7,y+
+ 0A5E 6990              ld R6,y+
+ 0A60 5990              ld R5,y+
+ 0A62 4990              ld R4,y+
+ 0A64 3990              ld R3,y+
+ 0A66 2990              ld R2,y+
+ 0A68 1990              ld R1,y+
+ 0A6A 0990              ld R0,y+
+ 0A6C 1895              reti
+ 0A6E                   .dbend
+                        .area bss(ram, con, rel)
+ 0000                   .dbfile F:\avr\状态机大作业\main.c
+ 0000           _i::
+ 0000                   .blkb 2
+ 0002                   .dbsym e i _i i
+ 0002           _Try_password::
+ 0002                   .blkb 4
+ 0006                   .dbsym e Try_password _Try_password A[4:4]c
+ 0006           _Right_password::
+ 0006                   .blkb 4
+ 000A                   .dbsym e Right_password _Right_password A[4:4]c
+ 000A           _beat::
+ 000A                   .blkb 2
+ 000C                   .dbsym e beat _beat i
+ 000C           _AdcData::
+ 000C                   .blkb 2
+ 000E                   .dbsym e AdcData _AdcData i
+                        .area data(ram, con, rel)
+ 0233                   .dbfile F:\avr\状态机大作业\main.c
+ 0233           L97:
+ 0233                   .blkb 13
+                        .area idata
+ 0233 7468652070617373776F726400        .byte 't,'h,'e,32,'p,'a,'s,'s,'w,'o,'r,'d,0
+                        .area data(ram, con, rel)
+ 0240                   .dbfile F:\avr\状态机大作业\main.c
+ 0240           L96:
+ 0240                   .blkb 13
+                        .area idata
+ 0240 706C6561736520656E74657200        .byte 'p,'l,'e,'a,'s,'e,32,'e,'n,'t,'e,'r,0
+                        .area data(ram, con, rel)
+ 024D                   .dbfile F:\avr\状态机大作业\main.c
+ 024D           L79:
+ 024D                   .blkb 7
+                        .area idata
+ 024D 57726F6E672100    .byte 'W,'r,'o,'n,'g,33,0
+                        .area data(ram, con, rel)
+ 0254                   .dbfile F:\avr\状态机大作业\main.c
+ 0254           L76:
+ 0254                   .blkb 10
+                        .area idata
+ 0254 70617373776F72643A00      .byte 'p,'a,'s,'s,'w,'o,'r,'d,58,0
+                        .area data(ram, con, rel)
+ 025E                   .dbfile F:\avr\状态机大作业\main.c
+ 025E           L71:
+ 025E                   .blkb 6
+                        .area idata
+ 025E 523A33303000      .byte 'R,58,51,48,48,0
+                        .area data(ram, con, rel)
+ 0264                   .dbfile F:\avr\状态机大作业\main.c
+ 0264           L68:
+ 0264                   .blkb 6
+                        .area idata
+ 0264 523A31303000      .byte 'R,58,49,48,48,0
+                        .area data(ram, con, rel)
+ 026A                   .dbfile F:\avr\状态机大作业\main.c
+ 026A           L65:
+ 026A                   .blkb 6
+                        .area idata
+ 026A 4C3A33303000      .byte 'L,58,51,48,48,0
+                        .area data(ram, con, rel)
+ 0270                   .dbfile F:\avr\状态机大作业\main.c
+ 0270           L62:
+ 0270                   .blkb 6
+                        .area idata
+ 0270 4C3A31303000      .byte 'L,58,49,48,48,0
+                        .area data(ram, con, rel)
+ 0276                   .dbfile F:\avr\状态机大作业\main.c
+ 0276           L56:
+ 0276                   .blkb 14
+                        .area idata
+ 0276 312832293A4C20342835293A5200      .byte 49,40,50,41,58,'L,32,52,40,53,41,58,'R,0
+                        .area data(ram, con, rel)
+ 0284                   .dbfile F:\avr\状态机大作业\main.c
+ 0284           L55:
+ 0284                   .blkb 12
+                        .area idata
+ 0284 4C3A35303020523A35303000  .byte 'L,58,53,48,48,32,'R,58,53,48,48,0
+                        .area data(ram, con, rel)
+ 0290                   .dbfile F:\avr\状态机大作业\main.c
+ 0290           L49:
+ 0290                   .blkb 7
+                        .area idata
+ 0290 4D4F44453A3100    .byte 'M,'O,'D,'E,58,49,0
+                        .area data(ram, con, rel)
+ 0297                   .dbfile F:\avr\状态机大作业\main.c
+ 0297           L48:
+ 0297                   .blkb 7
+                        .area idata
+ 0297 4D4F44453A3200    .byte 'M,'O,'D,'E,58,50,0
+                        .area data(ram, con, rel)
+ 029E                   .dbfile F:\avr\状态机大作业\main.c
+ 029E           L42:
+ 029E                   .blkb 13
+                        .area idata
+ 029E 312832293A636F6E74726F6C00        .byte 49,40,50,41,58,'c,'o,'n,'t,'r,'o,'l,0
+                        .area data(ram, con, rel)
+ 02AB                   .dbfile F:\avr\状态机大作业\main.c
+ 02AB           L41:
+ 02AB                   .blkb 6
+                        .area idata
+ 02AB 6C65642E2E00      .byte 'l,'e,'d,46,46,0
+                        .area data(ram, con, rel)
+ 02B1                   .dbfile F:\avr\状态机大作业\main.c
+ 02B1           L17:
+ 02B1                   .blkb 17
+                        .area idata
+ 02B1 73687574646F776E20746F2065786974  .byte 's,'h,'u,'t,'d,'o,'w,'n,32,'t,'o,32,'e,'x,'i,'t
+ 02C1 00                .byte 0
+                        .area data(ram, con, rel)
+ 02C2                   .dbfile F:\avr\状态机大作业\main.c
+ 02C2           L16:
+ 02C2                   .blkb 16
+                        .area idata
+ 02C2 62757A7A2E2E73656E64202A206F7200  .byte 'b,'u,'z,'z,46,46,'s,'e,'n,'d,32,42,32,'o,'r,0
+                        .area data(ram, con, rel)
+ 02D2                   .dbfile F:\avr\状态机大作业\main.c
+ 02D2           L10:
+ 02D2                   .blkb 14
+                        .area idata
+ 02D2 346669785F70617373776F726400      .byte 52,'f,'i,'x,95,'p,'a,'s,'s,'w,'o,'r,'d,0
+                        .area data(ram, con, rel)
+ 02E0                   .dbfile F:\avr\状态机大作业\main.c
+ 02E0           L9:
+ 02E0                   .blkb 16
+                        .area idata
+ 02E0 3162656C6C326C6564336D6F746F7200  .byte 49,'b,'e,'l,'l,50,'l,'e,'d,51,'m,'o,'t,'o,'r,0
+                        .area data(ram, con, rel)
+ 02F0                   .dbfile F:\avr\状态机大作业\main.c
+ 02F0           L5:
+ 02F0                   .blkb 8
+                        .area idata
+ 02F0 77656C636F6D6500  .byte 'w,'e,'l,'c,'o,'m,'e,0
+                        .area data(ram, con, rel)
+ 02F8                   .dbfile F:\avr\状态机大作业\main.c
+ 02F8           L2:
+ 02F8                   .blkb 10
+                        .area idata
+ 02F8 6279204A617370657200      .byte 'b,'y,32,'J,'a,'s,'p,'e,'r,0
+                        .area data(ram, con, rel)
+ 0302                   .dbfile F:\avr\状态机大作业\main.c
+ 0302           ; }
+ 0302           ; /*键盘扫描以及判断*/
+ 0302           ;       

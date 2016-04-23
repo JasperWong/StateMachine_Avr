@@ -1,0 +1,87 @@
+                        .module IO_Init.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile IO_Init.c
+ 0000                   .dbfile F:\avr\状态机大作业\IO_Init.c
+ 0000                   .dbfunc e IO_Init _IO_Init fV
+                        .even
+ 0000           _IO_Init::
+ 0000                   .dbline -1
+ 0000                   .dbline 5
+ 0000           ; #include<iom16v.h>
+ 0000           ; 
+ 0000           ; 
+ 0000           ; void IO_Init()
+ 0000           ; {
+ 0000                   .dbline 7
+ 0000           ;       
+ 0000           ;       DDRC=0xff;                      //lcd
+ 0000 8FEF              ldi R24,255
+ 0002 84BB              out 0x14,R24
+ 0004                   .dbline 8
+ 0004           ;       PORTC=0xff;
+ 0004 85BB              out 0x15,R24
+ 0006                   .dbline 10
+ 0006           ;       
+ 0006           ;       DDRD=0x00;                      
+ 0006 2224              clr R2
+ 0008 21BA              out 0x11,R2
+ 000A                   .dbline 11
+ 000A           ;       PORTD=0xff;
+ 000A 82BB              out 0x12,R24
+ 000C                   .dbline 13
+ 000C           ;       
+ 000C           ;       DDRB|=0xff;                     //595和motor
+ 000C 87B3              in R24,0x17
+ 000E 8F6F              ori R24,255
+ 0010 87BB              out 0x17,R24
+ 0012                   .dbline 14
+ 0012           ;       PORTB&=~0x0f;
+ 0012 88B3              in R24,0x18
+ 0014 807F              andi R24,240
+ 0016 88BB              out 0x18,R24
+ 0018                   .dbline 16
+ 0018           ;       
+ 0018           ;       DDRD|=(1<<PD2);         //lcd
+ 0018 8A9A              sbi 0x11,2
+ 001A                   .dbline 17
+ 001A           ;       PORTD&=~(1<<PD2);
+ 001A 9298              cbi 0x12,2
+ 001C                   .dbline 18
+ 001C           ;       DDRD|=(1<<PD3);         //lcd
+ 001C 8B9A              sbi 0x11,3
+ 001E                   .dbline 19
+ 001E           ;       PORTD&=~(1<<PD3);
+ 001E 9398              cbi 0x12,3
+ 0020                   .dbline 21
+ 0020           ;       
+ 0020           ;       DDRD|=(1<<PD4);         //motor
+ 0020 8C9A              sbi 0x11,4
+ 0022                   .dbline 22
+ 0022           ;       PORTD&=~(1<<PD4);
+ 0022 9498              cbi 0x12,4
+ 0024                   .dbline 23
+ 0024           ;       DDRD|=(1<<PD5);
+ 0024 8D9A              sbi 0x11,5
+ 0026                   .dbline 24
+ 0026           ;       PORTD&=~(1<<PD5);
+ 0026 9598              cbi 0x12,5
+ 0028                   .dbline 26
+ 0028           ;       
+ 0028           ;       DDRD|=(1<<PD6);         //lcd
+ 0028 8E9A              sbi 0x11,6
+ 002A                   .dbline 27
+ 002A           ;       PORTD&=~(1<<PD6);
+ 002A 9698              cbi 0x12,6
+ 002C                   .dbline 29
+ 002C           ;       
+ 002C           ;       DDRD|=(1<<PD7);         //buzz
+ 002C 8F9A              sbi 0x11,7
+ 002E                   .dbline 30
+ 002E           ;       PORTD&=~(1<<PD7);
+ 002E 9798              cbi 0x12,7
+ 0030                   .dbline -2
+ 0030           L1:
+ 0030                   .dbline 0 ; func end
+ 0030 0895              ret
+ 0032                   .dbend
+ 0032           ; }

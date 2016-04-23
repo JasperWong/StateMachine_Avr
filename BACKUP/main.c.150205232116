@@ -1,0 +1,66 @@
+#include<iom16v.h>
+#include"ad_key.h"
+#include"lcd1602.h"
+#include"IO_Init.h"
+
+#define none 12
+//#define '*' 10
+//#define '#' 11
+uint  AdcData;                        //存放ADC转换的结果
+uchar AdcConCom = 0;				 //ADC转换完成标志
+uchar key=none;
+
+#pragma interrupt_handler adc_isr:15
+void adc_isr(void)
+{
+	AdcData=(uint)((ulong)ADCH * 4930 / 256);
+	//if(AdcData<1700)	key=none;
+	if(AdcData>4500)	key=1;
+	if(AdcData>4200&&AdcData<4500)	key=2;
+    if(AdcData>4000&&AdcData<4200)	key=3;
+	if(AdcData>3700&&AdcData<4000)	key=4;
+	if(AdcData>3500&&AdcData<3700)	key=5;
+	if(AdcData>3200&&AdcData<3500)	key=6;
+	if(AdcData>3000&&AdcData<3200)	key=7;
+	if(AdcData>2700&&AdcData<3000)  key=8;
+	if(AdcData>2400&&AdcData<2700)	key=9;
+	if(AdcData>2200&&AdcData<2400)	key='*';
+	if(AdcData>1900&&AdcData<2200)	key=0;
+	if(AdcData>1700&&AdcData<1900)	key='#';
+	else key=none;
+	
+ 	AdcConCom = 1; //置ADC转换完成标志
+}
+
+
+void main()
+{		
+	uchar a=1+'0';
+	uint i=0;
+	LCD_Init();
+	LCD_clear();
+	IO_Init();
+	ADC_Init();
+	
+	while(1)
+	{
+		LCD_write_char(1,0,a);
+		delay_ms(1000);
+		LCD_clear();
+		delay_ms(1000);
+	}
+	/*while(1)
+	{	
+		if(AdcConCom)
+		{
+			LCD_write_char(i,0,key);
+			i++;
+			if(i==16) i=0;
+		}
+	}
+		
+	*/	
+		
+		
+}
+	

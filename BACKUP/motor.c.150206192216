@@ -1,0 +1,107 @@
+#include "iom16v.h"
+#include "macros.h"
+#include "delay.h"
+#include "motor.h"
+#include"lcd1602.h"
+
+uint Rspeed;
+uint Lspeed;
+
+void Advance(uint advance_time)										//前进
+{
+  IN1_HIGH;
+  IN2_LOW;
+  IN3_HIGH;
+  IN4_LOW;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(advance_time*20);
+}
+
+
+void Backward(uint backward_time)									//后退
+{
+  IN1_LOW;
+  IN2_HIGH;
+  IN3_LOW;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(backward_time*20);
+}
+
+
+void Stop(uint stop_time)										   //停止
+{
+  IN1_HIGH;
+  IN2_HIGH;
+  IN3_HIGH;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(stop_time*10);
+}
+
+
+void Right_Turn(uint rightturn_time)							//右转
+{
+  IN1_LOW;
+  IN2_HIGH;
+  IN3_HIGH;
+  IN4_LOW;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(rightturn_time*20);
+}
+
+void Left_Turn(uint leftturn_time)								//左转
+{
+  IN1_HIGH;
+  IN2_LOW;
+  IN3_LOW;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(leftturn_time*20);
+}
+
+void motor(uchar select)
+{
+	LCD_clear();
+	LCD_write_string(0,0,"1,2,3,4:left");
+	LCD_write_string(1,0,"5,6,7,8:right");
+	while(1)
+	{
+		if(select==1) Lspeed=100;
+		if(select==2) Lspeed=150;
+		if(select==3) Lspeed=200;
+		if(select==4) Lspeed=250;
+		
+		IN1_HIGH;
+		IN2_LOW;
+		IN3_HIGH;
+		IN4_LOW;
+		OCR1A=Rspeed;
+		OCR1B=Lspeed;
+	}
+
+}
+void io_init(void)
+{
+  DDRD=0xFF;
+  PORTD=0x00;
+}
+
+/************************************
+函数名 :     t0_init
+功能 :       t0定时初始化 ,8位快速PWM模式 ,8分频，OCR0A/B范围0-255
+输入参数 :   无
+返回参数 :   无
+*************************************/
+void t0_init(void)
+{
+   TCCR1A=0xa3;
+   TCCR1B=0x02;
+   OCR1A=0;
+   OCR1B=0;
+}

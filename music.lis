@@ -1,0 +1,42 @@
+                        .module music.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile music.c
+ 0000                   .dbfile F:\avr\状态机大作业\music.c
+ 0000                   .dbfunc e Bell_Init _Bell_Init fV
+                        .even
+ 0000           _Bell_Init::
+ 0000                   .dbline -1
+ 0000                   .dbline 16
+ 0000           ; #include<iom16v.h>
+ 0000           ; #include"music.h"
+ 0000           ; #include<macros.h>
+ 0000           ; 
+ 0000           ; 
+ 0000           ; /*void bell(uchar select)
+ 0000           ; 
+ 0000           ;       while(1)
+ 0000           ;       {
+ 0000           ;               Music(song);
+ 0000           ;       }
+ 0000           ;  
+ 0000           ; }*/
+ 0000           ; 
+ 0000           ; void Bell_Init()
+ 0000           ; {
+ 0000                   .dbline 17
+ 0000           ;        DDRD|=(1<<PD7);     //设置PORTA为输出
+ 0000 8F9A              sbi 0x11,7
+ 0002                   .dbline 18
+ 0002           ;        PORTD&=~(1<<PD7);     
+ 0002 9798              cbi 0x12,7
+ 0004                   .dbline 19
+ 0004           ;        TCCR1B = 0x01;     //Timer1开始工作，不分频，分频系数为1
+ 0004 81E0              ldi R24,1
+ 0006 8EBD              out 0x2e,R24
+ 0008                   .dbline -2
+ 0008           L1:
+ 0008                   .dbline 0 ; func end
+ 0008 0895              ret
+ 000A                   .dbend
+ 000A           ;       // SEI();             //打开全局中断    
+ 000A           ; }

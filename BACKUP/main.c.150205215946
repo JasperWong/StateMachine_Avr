@@ -1,0 +1,11 @@
+#include<iom16v.h>
+#include"ad_key.h"
+
+uint AdcData;                        //存放ADC转换的结果
+uchar AdcConCom = 0;				 //ADC转换完成标志
+
+
+
+void main()
+{
+	

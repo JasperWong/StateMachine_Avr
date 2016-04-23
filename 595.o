@@ -1,0 +1,35 @@
+XL
+H 1 areas 3 global symbols
+M _595.c
+S _Send_Byte Ref0000
+A text size 24 flags 0
+dbfile 595.c
+dbfile F:\avr\状态机大作业\595.c
+dbfunc e Driver_595 0 fV
+dbsym r right A c
+dbsym r left C c
+dbline FFFFFFFF 8
+dbline 5 8
+dbline 6 8
+dbline 7 E
+dbline 8 14
+dbline 8 16
+dbline 8 18
+dbline FFFFFFFE 1A
+dbline 0 1A
+dbfunc e Driver_595_Init 20 fV
+dbline FFFFFFFF 20
+dbline C 20
+dbline D 20
+dbline FFFFFFFE 22
+dbline 0 22
+S _Driver_595_Init Def0020
+S _Driver_595 Def0000
+T 00 00 AA 92 CA 92 A2 2E C0 2E 0C 2D 0E 94 00 00
+R 00 00 00 00 12 0E 00 00
+T 0E 00 0A 2D 0E 94 00 00 C4 98 C4 9A C4 98 C9 90
+R 00 00 00 00 12 06 00 00
+T 1C 00 A9 90 08 95
+R 00 00 00 00
+T 20 00 BC 9A 08 95
+R 00 00 00 00

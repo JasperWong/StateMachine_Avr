@@ -1,0 +1,40 @@
+XL
+H 1 areas 2 global symbols
+M _16SPI.c
+A text size 24 flags 0
+dbfile 16SPI.c
+dbfile F:\avr\状态机大作业\16SPI.c
+dbfunc e SPI_Init 0 fV
+dbline FFFFFFFF 0
+dbline D 0
+dbline E 0
+dbline F 2
+dbline 10 4
+dbline 11 6
+dbline 13 8
+dbline 14 C
+dbline FFFFFFFE 10
+dbline 0 10
+dbfunc e Send_Byte 12 fV
+dbsym r i A c
+dbsym r data 10 c
+dbline FFFFFFFF 14
+dbline 18 14
+dbline 1A 14
+dbline 1A 14
+dbline 1B 18
+dbline 1C 1A
+dbline 1C 1A
+dbline 1D 1E
+dbline FFFFFFFE 20
+dbline 0 20
+S _SPI_Init Def0000
+S _Send_Byte Def0012
+T 00 00 BD 9A BC 98 BF 9A BC 9A 80 E5 8D B9 22 24
+R 00 00 00 00
+T 0E 00 2E B8 08 95
+R 00 00 00 00
+T 12 00 AA 92 76 99 FE CF 0F B9 77 9B FE CF AF B0
+R 00 00 00 00
+T 20 00 A9 90 08 95
+R 00 00 00 00

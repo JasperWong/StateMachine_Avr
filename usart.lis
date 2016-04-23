@@ -1,0 +1,146 @@
+                        .module usart.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile usart.c
+ 0000                   .dbfile F:\avr\状态机大作业\usart.c
+ 0000                   .dbfunc e Usart_init _Usart_init fV
+                        .even
+ 0000           _Usart_init::
+ 0000                   .dbline -1
+ 0000                   .dbline 12
+ 0000           ; #include <iom16v.h>
+ 0000           ; #include <macros.h>
+ 0000           ; #include "usart.h"
+ 0000           ; 
+ 0000           ; 
+ 0000           ; #define uchar unsigned char
+ 0000           ; #define uint  unsigned int
+ 0000           ; 
+ 0000           ; 
+ 0000           ; 
+ 0000           ; void Usart_init(void)
+ 0000           ; {
+ 0000                   .dbline 13
+ 0000           ;       UCSRB = 0x00;                                          //关串口
+ 0000 2224              clr R2
+ 0002 2AB8              out 0xa,R2
+ 0004                   .dbline 14
+ 0004           ;       UCSRA = 0x02;                                          //倍速模式   M16中文P151
+ 0004 82E0              ldi R24,2
+ 0006 8BB9              out 0xb,R24
+ 0008                   .dbline 15
+ 0008           ;       UCSRC = BIT(URSEL) | 0x06;                     //写UCSRC寄存器,设定8个bit，1停止位，异步
+ 0008 86E8              ldi R24,134
+ 000A 80BD              out 0x20,R24
+ 000C                   .dbline 16
+ 000C           ;       UBRR  = 12;                                                //设定串口波特率为9600
+ 000C 8CE0              ldi R24,12
+ 000E 89B9              out 0x9,R24
+ 0010                   .dbline 17
+ 0010           ;       UCSRB = (1<<RXCIE)|(1<<RXEN)|(1<<TXEN);//使能接收结束中断，使能收发
+ 0010 88E9              ldi R24,152
+ 0012 8AB9              out 0xa,R24
+ 0014                   .dbline -2
+ 0014           L1:
+ 0014                   .dbline 0 ; func end
+ 0014 0895              ret
+ 0016                   .dbend
+ 0016                   .dbfunc e USART_Transmit _USART_Transmit fV
+ 0016           ;           data -> R16
+                        .even
+ 0016           _USART_Transmit::
+ 0016                   .dbline -1
+ 0016                   .dbline 23
+ 0016           ; }
+ 0016           ; 
+ 0016           ; 
+ 0016           ; /*串口发送*/
+ 0016           ; void USART_Transmit( uchar data )
+ 0016           ; {
+ 0016           L3:
+ 0016                   .dbline 24
+ 0016           ; while ( !( UCSRA & (1<<UDRE)) ) ;  //等待发送缓冲器为空
+ 0016           L4:
+ 0016                   .dbline 24
+ 0016 5D9B              sbis 0xb,5
+ 0018 FECF              rjmp L3
+ 001A           X0:
+ 001A                   .dbline 25
+ 001A           ; UDR = data;                        // 将数据放入缓冲器，发送数据 
+ 001A 0CB9              out 0xc,R16
+ 001C                   .dbline -2
+ 001C           L2:
+ 001C                   .dbline 0 ; func end
+ 001C 0895              ret
+ 001E                   .dbsym r data 16 c
+ 001E                   .dbend
+ 001E                   .dbfunc e USART_Receive _USART_Receive fc
+                        .even
+ 001E           _USART_Receive::
+ 001E                   .dbline -1
+ 001E                   .dbline 31
+ 001E           ; } 
+ 001E           ; 
+ 001E           ; 
+ 001E           ; 
+ 001E           ; uchar USART_Receive( void )
+ 001E           ; {
+ 001E           L7:
+ 001E                   .dbline 32
+ 001E           ; while ( !(UCSRA & (1<<RXC)) );  // 等待接收数据
+ 001E           L8:
+ 001E                   .dbline 32
+ 001E 5F9B              sbis 0xb,7
+ 0020 FECF              rjmp L7
+ 0022           X1:
+ 0022                   .dbline 33
+ 0022           ; return UDR;                     // 从缓冲器中获取并返回数据
+ 0022 0CB1              in R16,0xc
+ 0024                   .dbline -2
+ 0024           L6:
+ 0024                   .dbline 0 ; func end
+ 0024 0895              ret
+ 0026                   .dbend
+ 0026                   .dbfunc e newline _newline fV
+                        .even
+ 0026           _newline::
+ 0026                   .dbline -1
+ 0026                   .dbline 40
+ 0026           ; } 
+ 0026           ; 
+ 0026           ; 
+ 0026           ; 
+ 0026           ; 
+ 0026           ; void newline(void)   //换行
+ 0026           ; {
+ 0026                   .dbline 41
+ 0026           ;    USART_Transmit(0x0d);  //发送一个回车
+ 0026 0DE0              ldi R16,13
+ 0028 F6DF              xcall _USART_Transmit
+ 002A                   .dbline 42
+ 002A           ;    USART_Transmit(0x0a);  //发送一个换行
+ 002A 0AE0              ldi R16,10
+ 002C                   .dbline -2
+ 002C           L10:
+ 002C                   .dbline 0 ; func end
+ 002C F4CF              xjmp _USART_Transmit
+ 002E                   .dbend
+ 002E                   .dbfunc e blank _blank fV
+                        .even
+ 002E           _blank::
+ 002E                   .dbline -1
+ 002E                   .dbline 46
+ 002E           ; }
+ 002E           ; 
+ 002E           ; void blank(void)    //空格
+ 002E           ; {
+ 002E                   .dbline 47
+ 002E           ;    USART_Transmit(0x20);  
+ 002E 00E2              ldi R16,32
+ 0030                   .dbline -2
+ 0030           L11:
+ 0030                   .dbline 0 ; func end
+ 0030 F2CF              xjmp _USART_Transmit
+ 0032                   .dbend
+ 0032           ; }
+ 0032           ; 
+ 0032           ; 

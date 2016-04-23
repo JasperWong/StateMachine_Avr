@@ -1,0 +1,81 @@
+XL
+H 1 areas 5 global symbols
+M eeprom.c
+S push_xgset00FC Ref0000
+S pop_xgset00FC Ref0000
+A text size 78 flags 0
+dbfile eeprom.c
+dbfile F:\avr\状态机大作业\eeprom.c
+dbfunc e eeprom_write 0 fV
+dbsym r sreg A i
+dbsym r data 12 c
+dbsym r add 10 c
+dbline FFFFFFFF 4
+dbline 5 4
+dbline 7 4
+dbline 8 8
+dbline 9 C
+dbline 9 C
+dbline A 10
+dbline B 14
+dbline C 16
+dbline D 18
+dbline E 1A
+dbline F 1C
+dbline 10 1E
+dbline FFFFFFFE 20
+dbline 0 20
+dbfunc e eeprom_read 26 fc
+dbsym r sreg A i
+dbsym r add 10 c
+dbline FFFFFFFF 2A
+dbline 14 2A
+dbline 17 2A
+dbline 18 2E
+dbline 19 32
+dbline 19 32
+dbline 1A 36
+dbline 1B 3A
+dbline 1C 3C
+dbline 1D 3E
+dbline 1E 40
+dbline FFFFFFFE 42
+dbline 0 42
+dbfunc e eeprom_write_string 48 fV
+dbsym r i A c
+dbsym r temp C pc
+dbsym r add E c
+dbline FFFFFFFF 50
+dbline 22 50
+dbline 23 50
+dbline 25 54
+dbline 26 54
+dbline 27 62
+dbline 28 64
+dbline 29 66
+dbline 24 66
+dbline FFFFFFFE 74
+dbline 0 74
+S _eeprom_write_string Def0048
+S _eeprom_write Def0000
+S _eeprom_read Def0026
+T 00 00 AA 92 BA 92 AF B6 BB 24 8F E7 8F BF E1 99
+R 00 00 00 00
+T 0E 00 FE CF 22 24 2F BA 0E BB 2D BB E2 9A E1 98
+R 00 00 00 00
+T 1C 00 E1 9A AF BE B9 90 A9 90 08 95
+R 00 00 00 00
+T 26 00 AA 92 BA 92 AF B6 BB 24 8F E7 8F BF E1 99
+R 00 00 00 00
+T 34 00 FE CF 22 24 2F BA 0E BB E0 9A AF BE 0D B3
+R 00 00 00 00
+T 42 00 B9 90 A9 90 08 95
+R 00 00 00 00
+T 48 00 0E 94 00 00 69 01 E0 2E AA 24 09 C0 EA 2D
+R 00 00 00 00 12 04 00 00
+T 56 00 FF 27 EC 0D FD 1D 20 81 0E 2D CF DF A3 94
+R 00 00 00 00
+T 64 00 E3 94 EA 2D FF 27 EC 0D FD 1D 20 80 22 20
+R 00 00 00 00
+T 72 00 81 F7 0C 94 00 00
+R 00 00 00 00 12 06 01 00

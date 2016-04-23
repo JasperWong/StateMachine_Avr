@@ -1,0 +1,48 @@
+XL
+H 2 areas 4 global symbols
+M motor.c
+A text size 34 flags 0
+dbfile motor.c
+dbfile F:\avr\状态机大作业\motor.c
+dbfunc e motor 0 fV
+dbsym r Rspeed 12 i
+dbsym r Lspeed 10 i
+dbline FFFFFFFF 0
+dbline B 0
+dbline C 0
+dbline D 2
+dbline E 4
+dbline F 6
+dbline 10 8
+dbline 11 C
+dbline FFFFFFFE 10
+dbline 0 10
+dbfunc e Motor_init 12 fV
+dbline FFFFFFFF 12
+dbline 15 12
+dbline 16 12
+dbline 17 18
+dbline 18 1E
+dbline 19 22
+dbline 1A 26
+dbline 1B 2E
+dbline FFFFFFFE 32
+dbline 0 32
+S _Motor_init Def0012
+S _motor Def0000
+A bss size 4 flags 20
+dbfile F:\avr\状态机大作业\motor.c
+dbsym e Lspeed 0 i
+dbsym e Rspeed 2 i
+S _Lspeed Def0000
+S _Rspeed Def0002
+T 00 00 C0 9A C1 98 C2 9A C3 98 1B BD 0A BD 39 BD
+R 00 00 00 00
+T 0E 00 28 BD 08 95
+R 00 00 00 00
+T 12 00 81 B3 80 63 81 BB 82 B3 8F 7C 82 BB 83 EA
+R 00 00 00 00
+T 20 00 8F BD 82 E0 8E BD 22 24 33 24 3B BC 2A BC
+R 00 00 00 00
+T 2E 00 39 BC 28 BC 08 95
+R 00 00 00 00

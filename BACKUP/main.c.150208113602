@@ -1,0 +1,420 @@
+#include<iom16v.h>
+#include<macros.h>
+#include"ad_key.h"
+#include"lcd1602.h"
+#include"IO_Init.h"
+#include"usart.h"
+#include"reset.h"
+#include"LED.h"
+#include"music.h"
+
+
+uint  AdcData;                        //存放ADC转换的结果
+uchar AdcConCom = 0;				  //ADC转换完成标志
+uchar select=0;						  //键盘选择标志
+uchar IsReset=0;						
+uint beat;							  //音乐调子
+
+
+
+void main()
+{	
+	
+	uchar *p;
+	p="by Jasper";	
+	Init();
+	IsReset=0;
+	/*if(!IsReset){
+	LCD_clear();
+	delay_ms(500);
+	LCD_write_str(5,0,"welcome");
+	
+	while(*p)									//方便调试
+	{
+		LCD_write_char(i,1,*p);
+		p++;
+		i++;
+		delay_ms(300);
+	}
+	delay_ms(1000);
+	}*/
+	LCD_clear();
+	LCD_write_str(0,0,"1bell2led3motor");
+	LCD_write_str(0,1,"4.clock 5.Calculator");
+	T2_Init();
+	while(1)
+	{
+		if(select=='1')  
+		{
+			LCD_clear();
+			LCD_write_str(0,0,"buzz..send * or");
+			LCD_write_str(0,1,"shutdown to exit");
+			Bell();
+		}
+		
+		if(select=='2')  LED(); 
+		
+		if(select=='3')  Motor();
+	}
+		
+}
+
+void T2_Init()
+{
+	TCCR2=0x0A;
+	TIMSK|=(1<<OCIE2);
+	OCR2=125;			//1ms
+	
+}
+
+#pragma interrupt_handler UartRecvData:12									
+void UartRecvData(void)																		//串口
+{
+ 	uchar temp;
+	temp = UDR;
+	if(temp=='s')	
+	{	
+		IsReset=1;
+		Driver_595(0x00,0x00);
+		reset();
+	}
+	if(temp=='1')	select='1';					
+	if(temp=='2')	select='2';
+	if(temp=='3')	select='3';
+	if(temp=='4')	select='4';
+	if(temp=='5')	select='5';
+	if(temp=='6')	select='6';
+	if(temp=='7')	select='7';
+	if(temp=='8')	select='8';
+	if(temp=='9')	select='9';
+	if(temp=='*')	select='*';
+	if(temp=='0')	select='0';
+	if(temp=='#')	select='#';
+	//if(temp=='1')	select=1;
+}
+
+#pragma interrupt_handler timer1_ovf_isr:iv_TIM1_OVF
+void timer1_ovf_isr(void)
+{
+ 	if(beat)
+ 	{	
+ 	 	PORTD ^= BIT(7);     //蜂鸣器接入口电平翻转
+ 	 	TCNT1H=beat/256;			
+  	 	TCNT1L=beat%256;     //将音符对应的计数值写入计时器
+ 	}
+ 	
+}
+
+
+void Init()
+{
+	CLI(); 
+	IO_Init();
+	ADC_Init();
+	Usart_init03(); 
+	LCD_Init();
+	Driver_595_Init();
+	SPI_Init ();
+ 	SEI();  
+}
+
+void LED()
+{
+	uchar left=0x01;
+	uchar right=0x80;
+	LCD_clear();
+	LCD_write_str(0,0,"led..");
+	LCD_write_str(0,2,"1(2):control");
+	//loop:
+	while(1)
+	{
+		Driver_595(left,right);
+		if(select=='2')
+		{
+			LCD_write_str(6,0,"MODE:1");
+			left<<=1;
+			right>>=1;
+		}
+		
+		else
+		{
+			right<<=1;
+			left>>=1;
+			LCD_write_str(6,0,"MODE:2");
+		}
+		if(left==0x00)
+		{
+			if(select=='2') 
+			{
+				left=0x01;
+		        right=0x80;
+			}
+			
+			else
+			{
+				right=0x01;
+		        left=0x80;
+			}
+		}
+		delay_ms(100);
+	}
+}	
+	
+	
+
+
+		//蜂鸣器
+void Bell()
+{
+	/*beat用以存储音符对应的计数值*/
+	unsigned int song[]=
+	{
+ 		N6,12,N7,4,H1,8,H2,4,H3,4,/**/H2,32,/**/N7,12,N6,4,N5,8,N3,4,N5,4,/**/
+ 		N6,32,/**/H1,12,N6,4,N6,8,H3,8,/**/H2,32,/**/N5,22,N6,4,N7,8,H1,4,N7,4,/**/
+ 		N6,32, /**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/H1,16,H1,4,N6,4,H1,4,H2,4,/**/
+ 		N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 		N5,4,N6,4,N7,16,N7,4,N5,4,/**/N6,32,/**/
+ 		N6,12,N7,4,H1,8,H2,4,H3,4,/**/H2,32,/**/N7,12,N6,4,N5,8,N3,4,N5,4,/**/
+ 		N6,32,/**/H1,12,N6,4,N6,8,H3,8,/**/H2,32,/**/N5,12,N6,4,N7,8,H1,4,N7,4,/**/
+ 		N6,32,/**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/H1,16,H1,4,N6,4,H1,4,H2,4,/**/
+ 		N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 		N5,4,N6,4,N7,16,N6,4,N5,4,/**/N6,32,/**/H3,24,H2,4,H1,4,/**/H2,32,/**/
+ 		H1,24,N7,4,N6,4,/**/N7,24,H1,4,H2,4,/**/H3,24,H3,4,N6,4,/**/H2,24,H3,4,H2,4, /**/
+ 		H1,16,H1,4,N6,4,H1,4,H2,4,/**/N7,32,/**/H3,24,N6,8,/**/H2,24,H3,4,H2,4,/**/
+ 		H1,16,H1,4,N6,4,H1,4,H2,4,/**/N7,24,H1,4,H2,4,/**/H3,24,H2,4,H1,4,/**/
+ 		H2,24,H3,4,H2,4,/**/H1,24,N6,8,/**/N7,24,H1,8,/**/N6,32,/**/N6,32,/**/
+ 		0xFF //音乐结尾符
+	};
+						
+						
+						
+	
+	Bell_Init();
+	while(1)
+	{
+		Music(song);
+	}
+}
+
+		//播放音乐
+void Music(unsigned int *pMusic) 
+{ 
+	
+  	while(*pMusic!=0xFF) 			//0xFF为音乐结尾符 
+    { 
+		
+      	TIMSK=0x04;				//Timer1溢出中断使能      
+	  	beat=*pMusic;             //取出音符
+	  	TCNT1H=beat/256;			 
+	  	TCNT1L=beat%256;          //将音符对应的计数值写入计时器,开始发声
+                
+      	pMusic++;					//乐谱音符指针+1 ,取拍数
+      	delay_ms((*pMusic)*50);   //节拍延时，可以通过这里调整音乐播放速度
+
+      	TIMSK=0x00;			   	//当前音符结束,屏蔽Timer1溢出中断
+                
+      	pMusic++;
+							//乐谱音符指针+1，指向下一音符
+    }        
+}
+
+
+//电机
+
+void Motor()
+{
+	uint Rspeed=500;
+	uint Lspeed=500;
+	LCD_clear();
+	LCD_write_str(0,0,"L:500 R:500");
+	LCD_write_str(0,1,"1(2):L 4(5):R");
+	Motor_init();
+	while(1)
+	{
+		if(select=='1') 
+		{
+			Lspeed=100;
+			LCD_write_str(0,0,"L:100");
+		}
+		if(select=='2') 
+		{
+			Lspeed=300;
+			LCD_write_str(0,0,"L:300");
+		}
+		if(select=='4') 
+		{
+			Rspeed=100;
+			LCD_write_str(6,0,"R:100");
+		}
+		if(select=='5') 
+		{
+			Rspeed=300;
+			LCD_write_str(6,0,"R:300");
+		}
+		motor(Lspeed,Rspeed);
+	}
+
+}
+
+void Calculator()
+{
+	LCD_clear();
+	
+
+
+
+
+
+
+/*键盘扫描以及判断*/
+#pragma interrupt_handler t2_isr:4
+void t2_isr()																		//select对应键盘上的数字,不要说我魔鬼数字...																		
+{
+	ADCSRA|= (1<<ADSC);
+	while(!(ADCSRA & 0x10));
+	AdcData=(uint)((ulong)ADCH * 4930 / 256);
+	ADCSRA &= ~(0x10);															
+
+	select='N';
+ 	if(AdcData==4660)	
+	{
+		ADCSRA|= (1<<ADSC);															
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);		
+		if(AdcData==4660)
+		{
+			select='1';
+		}
+	}
+	
+	if(AdcData==4390)		
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==4390)
+		{
+			select='2';
+		}
+	}
+    if(AdcData==4140)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==4140)
+		{
+			select='3';
+		}
+	}
+	if(AdcData==3870)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==3870)
+		{
+			select='4';
+		}
+	}
+	if(AdcData==3601)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==3601)
+		{
+			select='5';
+		}
+	}
+	if(AdcData==3350)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==3350)
+		{
+			select='6';
+		}
+	}
+	if(AdcData==3100)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==3100)
+		{
+			select='7';
+		}
+	}
+	if(AdcData==2830)  
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==2830)
+		{
+			select='8';
+		}
+	}
+	if(AdcData==2580)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==2580)
+		{
+			select='9';
+		}
+	}
+	if(AdcData==2310)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==2310)
+		{
+			select='*';		
+			Driver_595(0x00,0x00);
+			reset();
+		}
+		
+	}
+		
+	if(AdcData==2060)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==2060)
+		{
+			select='0';
+		}
+	}
+	if(AdcData==1810)	
+	{
+		ADCSRA|= (1<<ADSC);
+		while(!(ADCSRA & 0x10));
+		AdcData=(uint)((ulong)ADCH * 4930 / 256);
+		ADCSRA &= ~(0x10);
+		if(AdcData==1810)
+		{
+			select='#';
+		}
+	}
+	
+ 	AdcConCom = 1; //置ADC转换完成标志
+}
+/*键盘扫描以及判断*/
+	

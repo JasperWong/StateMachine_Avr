@@ -1,0 +1,63 @@
+XL
+H 1 areas 5 global symbols
+M usart.c
+A text size 32 flags 0
+dbfile usart.c
+dbfile F:\avr\状态机大作业\usart.c
+dbfunc e Usart_init 0 fV
+dbline FFFFFFFF 0
+dbline C 0
+dbline D 0
+dbline E 4
+dbline F 8
+dbline 10 C
+dbline 11 10
+dbline FFFFFFFE 14
+dbline 0 14
+dbfunc e USART_Transmit 16 fV
+dbsym r data 10 c
+dbline FFFFFFFF 16
+dbline 17 16
+dbline 18 16
+dbline 18 16
+dbline 19 1A
+dbline FFFFFFFE 1C
+dbline 0 1C
+dbfunc e USART_Receive 1E fc
+dbline FFFFFFFF 1E
+dbline 1F 1E
+dbline 20 1E
+dbline 20 1E
+dbline 21 22
+dbline FFFFFFFE 24
+dbline 0 24
+dbfunc e newline 26 fV
+dbline FFFFFFFF 26
+dbline 28 26
+dbline 29 26
+dbline 2A 2A
+dbline FFFFFFFE 2C
+dbline 0 2C
+dbfunc e blank 2E fV
+dbline FFFFFFFF 2E
+dbline 2E 2E
+dbline 2F 2E
+dbline FFFFFFFE 30
+dbline 0 30
+S _USART_Receive Def001E
+S _newline Def0026
+S _blank Def002E
+S _Usart_init Def0000
+S _USART_Transmit Def0016
+T 00 00 22 24 2A B8 82 E0 8B B9 86 E8 80 BD 8C E0
+R 00 00 00 00
+T 0E 00 89 B9 88 E9 8A B9 08 95
+R 00 00 00 00
+T 16 00 5D 9B FE CF 0C B9 08 95
+R 00 00 00 00
+T 1E 00 5F 9B FE CF 0C B1 08 95
+R 00 00 00 00
+T 26 00 0D E0 F6 DF 0A E0 F4 CF
+R 00 00 00 00
+T 2E 00 00 E2 F2 CF
+R 00 00 00 00

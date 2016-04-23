@@ -1,0 +1,17 @@
+XL
+H 3 areas 2 global symbols
+M led.c
+A text size 0 flags 0
+dbfile led.c
+A data size 2 flags 20
+dbfile led.c
+dbfile F:\avr\状态机大作业\led.c
+dbsym e right 0 c
+dbsym e left 1 c
+S _left Def0001
+S _right Def0000
+A idata size 2 flags 0
+T 00 00 01
+R 00 00 02 00
+T 01 00 80
+R 00 00 02 00

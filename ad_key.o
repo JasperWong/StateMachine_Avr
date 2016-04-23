@@ -1,0 +1,33 @@
+XL
+H 1 areas 2 global symbols
+M ad_key.c
+A text size 22 flags 0
+dbfile ad_key.c
+dbfile F:\avr\状态机大作业\ad_key.c
+dbfunc e ADC_Init 0 fV
+dbline FFFFFFFF 0
+dbline 7 0
+dbline 8 0
+dbline 9 4
+dbline A 8
+dbline B C
+dbline FFFFFFFE 10
+dbline 0 10
+dbfunc e T2_Init 12 fV
+dbline FFFFFFFF 12
+dbline F 12
+dbline 10 12
+dbline 11 16
+dbline 12 1C
+dbline FFFFFFFE 20
+dbline 0 20
+S _ADC_Init Def0000
+S _T2_Init Def0012
+T 00 00 22 24 26 B8 87 E6 87 B9 80 E8 88 B9 83 E8
+R 00 00 00 00
+T 0E 00 86 B9 08 95
+R 00 00 00 00
+T 12 00 8A E0 85 BD 89 B7 80 68 89 BF 8D E7 83 BD
+R 00 00 00 00
+T 20 00 08 95
+R 00 00 00 00

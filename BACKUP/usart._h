@@ -1,0 +1,13 @@
+#define uchar unsigned char
+#define uint  unsigned int
+
+void Usart_init01(void);
+void Usart_init02( uint baud );
+void Usart_init03(void);
+void USART_Transmit( uchar data );
+uchar USART_Receive( void );
+void USART_Transmits01( void );
+void USART_Transmits02(uchar *ptr);
+void USART_Transmits03(uchar *str,uint len);
+void newline(void);
+void blank(void);

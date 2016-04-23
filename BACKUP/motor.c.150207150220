@@ -1,0 +1,87 @@
+#include <iom16v.h>
+#include <macros.h>
+#include "delay.h"
+#include "motor.h"
+#include"lcd1602.h"
+
+uint Rspeed;
+uint Lspeed;
+/*
+void Advance(uint advance_time)										//前进
+{
+  IN1_HIGH;
+  IN2_LOW;
+  IN3_HIGH;
+  IN4_LOW;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(advance_time*20);
+}
+
+
+void Backward(uint backward_time)									//后退
+{
+  IN1_LOW;
+  IN2_HIGH;
+  IN3_LOW;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(backward_time*20);
+}
+
+
+void Stop(uint stop_time)										   //停止
+{
+  IN1_HIGH;
+  IN2_HIGH;
+  IN3_HIGH;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(stop_time*10);
+}
+
+
+void Right_Turn(uint rightturn_time)							//右转
+{
+  IN1_LOW;
+  IN2_HIGH;
+  IN3_HIGH;
+  IN4_LOW;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(rightturn_time*20);
+}
+
+void Left_Turn(uint leftturn_time)								//左转
+{
+  IN1_HIGH;
+  IN2_LOW;
+  IN3_LOW;
+  IN4_HIGH;
+  OCR1A=Rspeed;
+  OCR1B=Lspeed;
+  delay_ms(leftturn_time*20);
+}
+*/
+void motor(uint Lspeed,uint Rspeed)
+{
+		IN1_HIGH;
+		IN2_LOW;
+		IN3_HIGH;
+		IN4_LOW;
+		OCR1A=Rspeed;
+		OCR1B=Lspeed;
+}
+
+void Motor_init()
+{
+  	DDRD|=((1<<PD4)|(1<<PD5));
+  	PORTD&=~((1<<PD4)|(1<<PD5));
+  	TCCR1A=0xa3;
+  	TCCR1B=0x02;
+  	OCR1A=0;
+  	OCR1B=0;
+}
+

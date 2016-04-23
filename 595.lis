@@ -1,0 +1,62 @@
+                        .module _595.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile 595.c
+ 0000                   .dbfile F:\avr\状态机大作业\595.c
+ 0000                   .dbfunc e Driver_595 _Driver_595 fV
+ 0000           ;          right -> R10
+ 0000           ;           left -> R12
+                        .even
+ 0000           _Driver_595::
+ 0000 AA92              st -y,R10
+ 0002 CA92              st -y,R12
+ 0004 A22E              mov R10,R18
+ 0006 C02E              mov R12,R16
+ 0008                   .dbline -1
+ 0008                   .dbline 5
+ 0008           ; #include "16SPI.h"
+ 0008           ; #include "595.h"
+ 0008           ; 
+ 0008           ; void Driver_595(uchar left,uchar right)
+ 0008           ; {
+ 0008                   .dbline 6
+ 0008           ;       Send_Byte(left);
+ 0008 0C2D              mov R16,R12
+ 000A 0E940000          xcall _Send_Byte
+ 000E                   .dbline 7
+ 000E           ;       Send_Byte(right);
+ 000E 0A2D              mov R16,R10
+ 0010 0E940000          xcall _Send_Byte
+ 0014                   .dbline 8
+ 0014           ;       EN_595_OUTPUT;
+ 0014 C498              cbi 0x18,4
+ 0016                   .dbline 8
+ 0016 C49A              sbi 0x18,4
+ 0018                   .dbline 8
+ 0018 C498              cbi 0x18,4
+ 001A                   .dbline -2
+ 001A           L1:
+ 001A                   .dbline 0 ; func end
+ 001A C990              ld R12,y+
+ 001C A990              ld R10,y+
+ 001E 0895              ret
+ 0020                   .dbsym r right 10 c
+ 0020                   .dbsym r left 12 c
+ 0020                   .dbend
+ 0020                   .dbfunc e Driver_595_Init _Driver_595_Init fV
+                        .even
+ 0020           _Driver_595_Init::
+ 0020                   .dbline -1
+ 0020                   .dbline 12
+ 0020           ; }
+ 0020           ; 
+ 0020           ; void Driver_595_Init(void)
+ 0020           ; {
+ 0020                   .dbline 13
+ 0020           ;       SET_DD_ST_CP;
+ 0020 BC9A              sbi 0x17,4
+ 0022                   .dbline -2
+ 0022           L2:
+ 0022                   .dbline 0 ; func end
+ 0022 0895              ret
+ 0024                   .dbend
+ 0024           ; }

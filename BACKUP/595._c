@@ -1,0 +1,15 @@
+#include "16SPI.h"
+#include "595.h"
+
+void Driver_595(unsigned char i)
+{
+	Send_Byte(i>>8);
+	Send_Byte(i & 0x00FF);
+	
+	EN_595_OUTPUT;
+}
+
+void Driver_595_Init(void)
+{
+	SET_DD_ST_CP;
+}

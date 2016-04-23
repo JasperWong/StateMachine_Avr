@@ -1,0 +1,66 @@
+                        .module ad_key.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile ad_key.c
+ 0000                   .dbfile F:\avr\状态机大作业\ad_key.c
+ 0000                   .dbfunc e ADC_Init _ADC_Init fV
+                        .even
+ 0000           _ADC_Init::
+ 0000                   .dbline -1
+ 0000                   .dbline 7
+ 0000           ; #include<iom16v.h>
+ 0000           ; #include"ad_key.h"
+ 0000           ; #include<macros.h>
+ 0000           ; 
+ 0000           ; 
+ 0000           ; void ADC_Init(void)
+ 0000           ; {
+ 0000                   .dbline 8
+ 0000           ;       ADCSR = 0x00;   //ADC关闭
+ 0000 2224              clr R2
+ 0002 26B8              out 0x6,R2
+ 0004                   .dbline 9
+ 0004           ;       ADMUX = 0x67;   //外部参考源AVCC,左对齐,选择ADC7通道
+ 0004 87E6              ldi R24,103
+ 0006 87B9              out 0x7,R24
+ 0008                   .dbline 10
+ 0008           ;       ACSR =  0x80;   //模拟比较器控制和状态寄存器ACSR的ACD置1,使模拟比较器禁用
+ 0008 80E8              ldi R24,128
+ 000A 88B9              out 0x8,R24
+ 000C                   .dbline 11
+ 000C           ;       ADCSR = 0x83;   //开启ADC，8分频
+ 000C 83E8              ldi R24,131
+ 000E 86B9              out 0x6,R24
+ 0010                   .dbline -2
+ 0010           L1:
+ 0010                   .dbline 0 ; func end
+ 0010 0895              ret
+ 0012                   .dbend
+ 0012                   .dbfunc e T2_Init _T2_Init fV
+                        .even
+ 0012           _T2_Init::
+ 0012                   .dbline -1
+ 0012                   .dbline 15
+ 0012           ; }
+ 0012           ; 
+ 0012           ; void T2_Init()                                                //T2 ctc 中断
+ 0012           ; {
+ 0012                   .dbline 16
+ 0012           ;       TCCR2=0x0A;
+ 0012 8AE0              ldi R24,10
+ 0014 85BD              out 0x25,R24
+ 0016                   .dbline 17
+ 0016           ;       TIMSK|=(1<<OCIE2);
+ 0016 89B7              in R24,0x39
+ 0018 8068              ori R24,128
+ 001A 89BF              out 0x39,R24
+ 001C                   .dbline 18
+ 001C           ;       OCR2=125;                       //1ms
+ 001C 8DE7              ldi R24,125
+ 001E 83BD              out 0x23,R24
+ 0020                   .dbline -2
+ 0020           L2:
+ 0020                   .dbline 0 ; func end
+ 0020 0895              ret
+ 0022                   .dbend
+ 0022           ;       
+ 0022           ; }     

@@ -1,0 +1,19 @@
+#include<iom16v.h>
+#include"ad_key.h"
+#include<macros.h>
+
+
+void ADC_Init(void)
+{
+ 	ADCSR = 0x00;    //ADC关闭
+ 	ADMUX = 0x67;  //1:外部参考源AVCC,左对齐,选择ADC7通道
+ 	//ADMUX = 0x46;  //2:外部参考源AVCC,右对齐,选择ADC7通道
+ 	//ADMUX = 0xE0;    //3:2.56V 的片内基准电压源,左对齐,选择ADC0通道
+ 	//ADMUX = 0xC1;  //4:2.56V 的片内基准电压源,右对齐,选择ADC0通道
+ 	ACSR =  0x80;  //模拟比较器控制和状态寄存器ACSR的ACD置1,使模拟比较器禁用
+ 	ADCSR = 0x83;  //开启ADC，8分频
+}
+
+
+
+	

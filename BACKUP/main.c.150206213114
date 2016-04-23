@@ -1,0 +1,160 @@
+#include<iom16v.h>
+#include<macros.h>
+#include"ad_key.h"
+#include"lcd1602.h"
+#include"IO_Init.h"
+#include"usart.h"
+#include"reset.h"
+#include"LED.h"
+
+uint  AdcData;                        //存放ADC转换的结果
+uchar AdcConCom = 0;				 //ADC转换完成标志
+uchar key;
+uchar select=0;						//功能选择标志
+uchar IsReset=0;
+
+
+#pragma interrupt_handler UartRecvData:12
+void UartRecvData(void)
+{
+ 	uchar temp;
+	temp = UDR;
+	if(temp=='s')	
+	{	
+		IsReset=1;
+		Driver_595(0x0000);
+		reset();
+	}
+	if(temp=='1')	select='1';					
+	if(temp=='2')	select='2';
+	if(temp=='3')	select='3';
+	if(temp=='4')	select='4';
+	if(temp=='5')	select='5';
+	if(temp=='6')	select='6';
+	if(temp=='7')	select='7';
+	if(temp=='8')	select='8';
+	if(temp=='9')	select='9';
+	if(temp=='*')	select='*';
+	if(temp=='0')	select='0';
+	if(temp=='#')	select='#';
+	//if(temp=='1')	select=1;
+	
+}
+
+
+/*#pragma interrupt_handler adc_isr:15
+void adc_isr(void)
+{
+	AdcData=(uint)((ulong)ADCH * 4930 / 256);
+	//if(AdcData<1700)	key=none;
+	key='N';
+ 	if(AdcData>4500&&AdcData<4700)	
+	{
+		delay_ms(10);
+		if(AdcData>4500&&AdcData<4700)	key='1';
+	}
+	if(AdcData>4200&&AdcData<4500)	key='2';
+    if(AdcData>4000&&AdcData<4200)	key='3';
+	if(AdcData>3700&&AdcData<4000)	key='4';
+	if(AdcData>3500&&AdcData<3700)	key='5';
+	if(AdcData>3200&&AdcData<3500)	key='6';
+	if(AdcData>3000&&AdcData<3200)	key='7';
+	if(AdcData>2700&&AdcData<3000)  key='8';
+	if(AdcData>2400&&AdcData<2700)	key='9';
+	if(AdcData>2200&&AdcData<2400)	
+	{
+		ADCSRA|= (1<<ADSC);
+		delay_ms(50);
+		if(AdcData>2200&&AdcData<2400)
+		{
+			ADCSRA|= (1<<ADSC);
+			delay_ms(50);
+			if(AdcData>2200&&AdcData<2400)
+			{
+				ADCSRA|= (1<<ADSC);
+				delay_ms(50);
+				if(AdcData>2200&&AdcData<2400)
+				{
+					ADCSRA|= (1<<ADSC);
+					delay_ms(50);
+					if(AdcData>2200&&AdcData<2400)	key='*';
+				}
+			}
+		}
+
+		
+	}
+		
+	if(AdcData>1900&&AdcData<2200)	key='0';
+	if(AdcData>1700&&AdcData<1900)	key='#';
+	
+ 	AdcConCom = 1; //置ADC转换完成标志
+	ADCSRA|= (1<<ADSC);
+}
+*/
+void Init()
+{
+	CLI(); 
+	IO_Init();
+	ADC_Init();
+	Usart_init03(); 
+	LCD_Init();
+	Driver_595_Init();
+	SPI_Init ();
+	MCUCR = 0x00;
+ 	SEI();  
+}
+
+void LED()
+{
+	
+		while(1)
+		{
+			Driver_595(0xaaaa);
+		}
+}
+
+
+
+
+void main()
+{	
+	
+	uchar *p;
+	uint i=0;
+	p="by Jasper";	
+	Init();
+	IsReset=0;
+	
+	/*LCD_clear();
+	delay_ms(500);
+	LCD_write_str(5,0,"welcome");
+	
+	while(*p)									//方便调试
+	{
+		LCD_write_char(i,1,*p);
+		p++;
+		i++;
+		delay_ms(300);
+	}
+	delay_ms(1000);*/
+	
+	LCD_clear();
+	LCD_write_str(0,0,"1bell2led3motor");
+	LCD_write_str(0,1,"4.clock 5.Calculator");
+	//ADCSRA|= (1<<ADSC);
+	while(1)
+	{
+		/*if(AdcConCom = 1)
+		{
+			ADCSRA|= (1<<ADSC);
+			AdcConCom = 0;
+		}*/
+		if(select=='1')  bell(select);
+		if(select=='2')  LED(); 
+		
+			
+	}
+		
+}
+	

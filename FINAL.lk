@@ -1,0 +1,1 @@
+main.o ad_key.o lcd1602.o delay.o IO_Init.o usart.o music.o led.o 16SPI.o 595.o reset.o motor.o eeprom.o password.o 

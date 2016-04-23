@@ -1,0 +1,101 @@
+                        .module motor.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile motor.c
+ 0000                   .dbfile F:\avr\状态机大作业\motor.c
+ 0000                   .dbfunc e motor _motor fV
+ 0000           ;         Rspeed -> R18,R19
+ 0000           ;         Lspeed -> R16,R17
+                        .even
+ 0000           _motor::
+ 0000                   .dbline -1
+ 0000                   .dbline 11
+ 0000           ; #include <iom16v.h>
+ 0000           ; #include <macros.h>
+ 0000           ; #include "delay.h"
+ 0000           ; #include "motor.h"
+ 0000           ; #include"lcd1602.h"
+ 0000           ; 
+ 0000           ; uint Rspeed;
+ 0000           ; uint Lspeed;
+ 0000           ; 
+ 0000           ; void motor(uint Lspeed,uint Rspeed)
+ 0000           ; {
+ 0000                   .dbline 12
+ 0000           ;               IN1_HIGH;
+ 0000 C09A              sbi 0x18,0
+ 0002                   .dbline 13
+ 0002           ;               IN2_LOW;
+ 0002 C198              cbi 0x18,1
+ 0004                   .dbline 14
+ 0004           ;               IN3_HIGH;
+ 0004 C29A              sbi 0x18,2
+ 0006                   .dbline 15
+ 0006           ;               IN4_LOW;
+ 0006 C398              cbi 0x18,3
+ 0008                   .dbline 16
+ 0008           ;               OCR1A=Lspeed;
+ 0008 1BBD              out 0x2b,R17
+ 000A 0ABD              out 0x2a,R16
+ 000C                   .dbline 17
+ 000C           ;               OCR1B=Rspeed;
+ 000C 39BD              out 0x29,R19
+ 000E 28BD              out 0x28,R18
+ 0010                   .dbline -2
+ 0010           L1:
+ 0010                   .dbline 0 ; func end
+ 0010 0895              ret
+ 0012                   .dbsym r Rspeed 18 i
+ 0012                   .dbsym r Lspeed 16 i
+ 0012                   .dbend
+ 0012                   .dbfunc e Motor_init _Motor_init fV
+                        .even
+ 0012           _Motor_init::
+ 0012                   .dbline -1
+ 0012                   .dbline 21
+ 0012           ; }
+ 0012           ; 
+ 0012           ; void Motor_init()
+ 0012           ; {
+ 0012                   .dbline 22
+ 0012           ;       DDRD|=((1<<PD4)|(1<<PD5));
+ 0012 81B3              in R24,0x11
+ 0014 8063              ori R24,48
+ 0016 81BB              out 0x11,R24
+ 0018                   .dbline 23
+ 0018           ;       PORTD&=~((1<<PD4)|(1<<PD5));
+ 0018 82B3              in R24,0x12
+ 001A 8F7C              andi R24,207
+ 001C 82BB              out 0x12,R24
+ 001E                   .dbline 24
+ 001E           ;       TCCR1A=0xa3;
+ 001E 83EA              ldi R24,163
+ 0020 8FBD              out 0x2f,R24
+ 0022                   .dbline 25
+ 0022           ;       TCCR1B=0x02;
+ 0022 82E0              ldi R24,2
+ 0024 8EBD              out 0x2e,R24
+ 0026                   .dbline 26
+ 0026           ;       OCR1A=0;
+ 0026 2224              clr R2
+ 0028 3324              clr R3
+ 002A 3BBC              out 0x2b,R3
+ 002C 2ABC              out 0x2a,R2
+ 002E                   .dbline 27
+ 002E           ;       OCR1B=0;
+ 002E 39BC              out 0x29,R3
+ 0030 28BC              out 0x28,R2
+ 0032                   .dbline -2
+ 0032           L2:
+ 0032                   .dbline 0 ; func end
+ 0032 0895              ret
+ 0034                   .dbend
+                        .area bss(ram, con, rel)
+ 0000                   .dbfile F:\avr\状态机大作业\motor.c
+ 0000           _Lspeed::
+ 0000                   .blkb 2
+ 0002                   .dbsym e Lspeed _Lspeed i
+ 0002           _Rspeed::
+ 0002                   .blkb 2
+ 0004                   .dbsym e Rspeed _Rspeed i
+ 0004           ; }
+ 0004           ; 

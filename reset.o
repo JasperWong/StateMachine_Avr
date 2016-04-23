@@ -1,0 +1,16 @@
+XL
+H 1 areas 1 global symbols
+M reset.c
+A text size C flags 0
+dbfile reset.c
+dbfile F:\avr\状态机大作业\reset.c
+dbfunc e reset 0 fV
+dbline FFFFFFFF 0
+dbline 5 0
+dbline 6 0
+dbline 7 6
+dbline FFFFFFFE A
+dbline 0 A
+S _reset Def0000
+T 00 00 81 B5 88 61 81 BD 88 E0 81 BD 08 95
+R 00 00 00 00

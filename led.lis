@@ -1,0 +1,50 @@
+                        .module led.c
+                        .area text(rom, con, rel)
+ 0000                   .dbfile led.c
+                        .area data(ram, con, rel)
+ 0000                   .dbfile led.c
+ 0000           _right::
+ 0000                   .blkb 1
+                        .area idata
+ 0000 01                .byte 1
+                        .area data(ram, con, rel)
+ 0001                   .dbfile led.c
+ 0001                   .dbfile F:\avr\状态机大作业\led.c
+ 0001                   .dbsym e right _right c
+ 0001           _left::
+ 0001                   .blkb 1
+                        .area idata
+ 0001 80                .byte 128
+                        .area data(ram, con, rel)
+ 0002                   .dbfile F:\avr\状态机大作业\led.c
+ 0002                   .dbsym e left _left c
+ 0002           ; #include<iom16v.h>
+ 0002           ; #include"595.h"
+ 0002           ; #include"16SPI.h"
+ 0002           ; #include"delay.h"
+ 0002           ; 
+ 0002           ; uchar right=0x01;                                                                                                             
+ 0002           ; uchar left=0x80;
+ 0002           ; 
+ 0002           ; /*void led1(uchar left,uchar right)
+ 0002           ; {     
+ 0002           ;       Driver_595(left,right);
+ 0002           ;       right<<=1;
+ 0002           ;       left>>=1;
+ 0002           ;       delay_ms(500);  
+ 0002           ; }*/
+ 0002           ; 
+ 0002           ; 
+ 0002           ; /*void led2(uchar left,uchar right)
+ 0002           ; {
+ 0002           ;       left=0x01;                                                                                                              
+ 0002           ;       right=0x80;
+ 0002           ;       for(i=0;i<8;i++)
+ 0002           ;       {       
+ 0002           ;               delay_ms(500);
+ 0002           ;               Driver_595(left,right);
+ 0002           ;               left<<=1;
+ 0002           ;               right>>=1;
+ 0002           ;       }
+ 0002           ; 
+ 0002           ; }*/

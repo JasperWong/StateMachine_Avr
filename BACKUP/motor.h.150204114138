@@ -1,0 +1,36 @@
+//控制右轮速度
+#define  Rspeed 250
+//控制左轮速度
+#define  Lspeed 30
+
+//IN1输入高电平
+#define  IN1_HIGH  PORTB|=(1<<PB0)
+//IN1输入低电平
+#define  IN1_LOW   PORTB&=~(1<<PB0)
+
+//IN2输入高电平
+#define  IN2_HIGH  PORTB|=(1<<PB1)
+//IN2输入低电平
+#define  IN2_LOW   PORTB&=~(1<<PB1)
+
+//IN3输入高电平
+#define  IN3_HIGH  PORTB|=(1<<PB2)
+//IN3输入低电平
+#define  IN3_LOW   PORTB&=~(1<<PB2)
+
+//IN4输入高电平
+#define  IN4_HIGH  PORTB|=(1<<PB3)
+//IN4输入低电平
+#define  IN4_LOW   PORTB&=~(1<<PB3)
+
+#define  uchar   unsigned char
+#define  uint  	 unsigned int
+
+
+void Advance(uint advance_time);
+void Backward(uint backward_time);
+void Stop(uint stop_time);
+void Right_Turn(uint rightturn_time);
+void Left_Turn(uint leftturn_time);
+void io_init(void);
+void t0_init(void);

@@ -1,0 +1,28 @@
+#include<iom16v.h>
+#include"595.h"
+#include"16SPI.h"
+
+void led(uint select)
+{	
+	uchar left=0x01;
+	uchar right=0x80;
+	Driver_595_Init();
+	do
+	{	
+		Driver_595(left,right);
+		left<<=1;
+		right>>=1;
+		delay_ms(500);
+	} 
+	while(select=='1');
+	
+	do
+	{	
+		Driver_595(left,right);
+		left>>=1;
+		right<<=1;
+		delay_ms(500);
+	} 
+	while(select=='2');
+	
+}
